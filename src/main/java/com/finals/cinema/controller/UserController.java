@@ -47,7 +47,7 @@ public class UserController extends AbstractController {
         //mailMessage.setFrom("chand312902@gmail.com");
         mailMessage.setFrom("kinoarenaproject@gmail.com");
         mailMessage.setText("To confirm your account, please click here : " +
-                            "http://localhost:8080/confirm-account?token=" +
+                            "http://localhost:8888/confirm-account?token=" +
                             confirmationTokenRepository.findByUserId(register.getId()).getConfirmationToken());
                             emailSenderService.sendEmail(mailMessage);
         return "A confirmation email was sent to " + registerDTO.getEmail();
