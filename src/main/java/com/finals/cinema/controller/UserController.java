@@ -10,14 +10,15 @@ import com.finals.cinema.service.EmailSenderService;
 import com.finals.cinema.service.UserService;
 import com.finals.cinema.model.entity.User;
 import com.finals.cinema.model.entity.UserStatus;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.*;
 
 import jakarta.servlet.http.HttpSession;
-import javax.validation.Valid;
-
+//import import jakarta.validation.Valid;
+import jakarta.validation.Valid;
 @Component
 @RestController
 public class UserController extends AbstractController {

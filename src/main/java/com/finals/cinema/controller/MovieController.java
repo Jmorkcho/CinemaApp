@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.*;
 
 import jakarta.servlet.http.HttpSession;
-import javax.validation.Valid;
+import jakarta.validation.Valid;
 import java.io.FileNotFoundException;
 import java.util.List;
 
