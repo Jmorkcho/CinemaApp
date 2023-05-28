@@ -50,7 +50,7 @@ public class UserController extends AbstractController {
         mailMessage.setText("To confirm your account, please click here : " +
                             "http://localhost:8888/confirm-account?token=" +
                             confirmationTokenRepository.findByUserId(register.getId()).getConfirmationToken());
-                            emailSenderService.sendEmail(mailMessage);
+        emailSenderService.sendEmail(mailMessage);
         return "A confirmation email was sent to " + registerDTO.getEmail();
     }
 

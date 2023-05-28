@@ -25,15 +25,15 @@ public class IMDBMovieDTO {
     private String lead;
 
     public IMDBMovieDTO(JsonNode jsonNode) throws BadRequestException {
-        this.imdbId = jsonNode.get("id").asText().trim();
+//        this.imdbId = jsonNode.get("id").asText().trim();
         this.title = jsonNode.get("title").asText().trim();
         this.year = jsonNode.get("year").asText().trim();
-        this.plot = jsonNode.get("plot").asText().trim();
-        this.length = calculateLength(jsonNode.get("length").asText().trim());
-        this.rating = jsonNode.get("rating").asDouble();
-        this.poster = jsonNode.get("poster").asText().trim();
-        ArrayNode arrayNode = (ArrayNode) jsonNode.get("cast");
-        this.lead = arrayNode.get(0).get("actor").asText().trim();
+//        this.plot = jsonNode.get("plot").asText().trim();
+//        this.length = calculateLength(jsonNode.get("length").asText().trim());
+//        this.rating = jsonNode.get("rating").asDouble();
+//        this.poster = jsonNode.get("poster").asText().trim();
+//        ArrayNode arrayNode = (ArrayNode) jsonNode.get("cast");
+//        this.lead = arrayNode.get(0).get("actor").asText().trim();
     }
 
     private int calculateLength(String length) throws BadRequestException {

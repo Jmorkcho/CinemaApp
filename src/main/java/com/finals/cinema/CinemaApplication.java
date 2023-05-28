@@ -14,7 +14,7 @@ import org.springframework.context.annotation.Configuration;
 import java.sql.SQLException;
 
 @SpringBootApplication
-@Configuration("login")
+//@Configuration("login")
 @NpmPackage(value = "line-awesome", version = "1.3.0")
 @Theme("flowcrmtutorial")
 public class CinemaApplication implements AppShellConfigurator {

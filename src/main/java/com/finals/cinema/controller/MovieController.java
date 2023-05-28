@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.finals.cinema.service.MovieService;
 import com.finals.cinema.util.Constants;
 import com.finals.cinema.util.exceptions.BadGetawayException;
-import com.finals.cinema.util.exceptions.BadRequestException;
 import com.finals.cinema.util.exceptions.UnauthorizedException;
 import com.finals.cinema.model.DTO.*;
 import com.finals.cinema.model.entity.User;
@@ -35,13 +34,14 @@ public class MovieController extends AbstractController {
     }
 
     @GetMapping(value = "/movies/title/{title}")
+    //TODO
     public IMDBDataDTO findMoviesByName(@PathVariable(name = "title") String title) throws BadGetawayException, FileNotFoundException {
         JsonNode node = movieService.getImdbInfo(Constants.API_URL_SEARCH_ALL_FILMS + title);
         return new IMDBDataDTO(node);
     }
 
     @PostMapping(value = "/movies")
-    public ResponseMovieDTO addMovie(@Valid @RequestBody addMovieDTO addMovieDTO, HttpSession ses) throws BadRequestException, UnauthorizedException, BadGetawayException, FileNotFoundException {
+    public ResponseMovieDTO addMovie(@Valid @RequestBody AddMovieDTO addMovieDTO, HttpSession ses) throws Exception, UnauthorizedException {
         User user = sessionManager.getLoggedUser(ses);
         return movieService.addMovie(addMovieDTO, user.getId());
     }

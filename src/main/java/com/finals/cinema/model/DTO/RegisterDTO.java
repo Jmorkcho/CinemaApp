@@ -1,10 +1,6 @@
 package com.finals.cinema.model.DTO;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import jakarta.validation.constraints.*;
 
@@ -12,6 +8,7 @@ import jakarta.validation.constraints.*;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class RegisterDTO {
 
     @NotBlank(message = "Please fill all necessary fields")

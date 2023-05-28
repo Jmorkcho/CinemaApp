@@ -3,18 +3,16 @@ package com.finals.cinema.service;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.finals.cinema.model.DTO.IMDBMovieDTO;
-import com.finals.cinema.util.Constants;
 import com.finals.cinema.util.exceptions.BadGetawayException;
 import com.finals.cinema.util.exceptions.BadRequestException;
 import com.finals.cinema.util.exceptions.NotFoundException;
 import com.finals.cinema.util.exceptions.UnauthorizedException;
-import com.finals.cinema.model.DTO.addMovieDTO;
+import com.finals.cinema.model.DTO.AddMovieDTO;
 import com.finals.cinema.model.DTO.ResponseMovieDTO;
 import com.finals.cinema.model.entity.Genre;
 import com.finals.cinema.model.entity.Movie;
 import org.springframework.stereotype.Service;
 
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -23,7 +21,8 @@ import java.net.http.HttpResponse;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.Scanner;
+
+import static com.finals.cinema.util.Constants.*;
 
 @Service
 public class MovieService extends com.finals.cinema.service.AbstractService {
@@ -48,10 +47,10 @@ public class MovieService extends com.finals.cinema.service.AbstractService {
         return movies;
     }
 
-    public ResponseMovieDTO addMovie(addMovieDTO addMovieDTO, int userId) throws BadRequestException, UnauthorizedException, BadGetawayException, FileNotFoundException {
-        if (!isAdmin(userId)) {
-            throw new UnauthorizedException("Only admins can add movies");
-        }
+    public ResponseMovieDTO addMovie(AddMovieDTO addMovieDTO, int userId) throws Exception, UnauthorizedException {
+//        if (!isAdmin(userId)) {
+//            throw new UnauthorizedException("Only admins can add movies");
+//        }
         Movie sMovie = movieRepository.findByTitle(addMovieDTO.getTitle());
         if (sMovie != null) {
             throw new BadRequestException("There is already a movie with that title");
@@ -60,8 +59,7 @@ public class MovieService extends com.finals.cinema.service.AbstractService {
         if (sGenre.isEmpty()) {
             throw new BadRequestException("Invalid genre");
         }
-        String title = addMovieDTO.getTitle().replaceAll("\\s", "");
-        IMDBMovieDTO imdb = new IMDBMovieDTO(getImdbInfo(Constants.API_URL_SEARCH_BY_NAME + title));
+        IMDBMovieDTO imdb = addMovie(addMovieDTO);
         if (imdb.getImdbId().isBlank() || imdb.getImdbId() == null) {
             throw new BadRequestException("Movie with that title does not exist");
         }
@@ -81,6 +79,41 @@ public class MovieService extends com.finals.cinema.service.AbstractService {
         return new ResponseMovieDTO(movieRepository.save(movie));
     }
 
+    private IMDBMovieDTO addMovie(AddMovieDTO addMovieDTO) throws Exception {
+        String title = addMovieDTO.getTitle().replaceAll("\\s", "");
+        try {
+            String imdbId = getImdbId(title);
+            JsonNode node = getImdbInfo(imdbId);
+            IMDBMovieDTO imdb = new IMDBMovieDTO(node);
+            return imdb;
+        }catch (Exception e)
+        {
+            throw new Exception(e.getMessage());
+        }
+    }
+
+    private String getImdbId(String title) throws BadGetawayException {
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(API_URL_SEARCH_BY_NAME + title))
+                .header("X-RapidAPI-Key", API_KEY)
+                .header("X-RapidAPI-Host", API_HOST)
+                .method("GET", HttpRequest.BodyPublishers.noBody())
+                .build();
+
+        JsonNode jsonNode;
+        try {
+            HttpResponse<String> response = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
+            ObjectMapper om = new ObjectMapper();
+            jsonNode = om.readTree(response.body());
+        } catch (Exception e) {
+            throw new BadGetawayException("Cannot connect to IMDB,please try again later");
+        }
+        System.out.println(jsonNode.asText());
+        System.out.println(jsonNode);
+        return jsonNode.get("imdb_id").asText().trim();
+    }
+
     public ResponseMovieDTO deleteMovie(int movieId, int userId) throws UnauthorizedException {
         if (!isAdmin(userId)) {
             throw new UnauthorizedException("Only admins can remove movies");
@@ -93,15 +126,12 @@ public class MovieService extends com.finals.cinema.service.AbstractService {
         return new ResponseMovieDTO(sMovie.get());
     }
 
-    public JsonNode getImdbInfo(String url) throws BadGetawayException, FileNotFoundException {
-        File file = new File("C:\\Users\\user\\Desktop\\kinoarena\\KinoArena\\src\\main\\java\\com\\finals\\kinoarena\\service\\apikey.txt");
-        Scanner scanner = new Scanner(file);
-        String key = scanner.nextLine();
-        scanner.close();
+    public JsonNode getImdbInfo(String id) throws BadGetawayException, FileNotFoundException {
+
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(url))
-                .header("x-rapidapi-key",key)
-                .header("x-rapidapi-host", "imdb-internet-movie-database-unofficial.p.rapidapi.com")
+                .uri(URI.create(API_URL_SEARCH_BY_IMDB_ID + id))
+                .header("X-RapidAPI-Key", API_KEY)
+                .header("X-RapidAPI-Host", API_HOST)
                 .method("GET", HttpRequest.BodyPublishers.noBody())
                 .build();
         JsonNode jsonNode;
