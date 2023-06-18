@@ -4,6 +4,7 @@ import com.finals.cinema.model.DTO.UserWithoutTicketAndPassDTO;
 import com.finals.cinema.model.entity.User;
 import com.finals.cinema.service.UserService;
 import com.finals.cinema.util.exceptions.BadRequestException;
+import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -57,6 +58,7 @@ public class LoginView extends VerticalLayout {
             }
         });
         loginButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+        loginButton.addClickShortcut(Key.ENTER);
 
         add(toggleButtonTheme, title, username, password, loginButton, registrationButton);
 

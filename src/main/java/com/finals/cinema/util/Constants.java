@@ -16,7 +16,7 @@ public class Constants {
     public static final String MAIN_VIEW_ROUTE = "main";
     public static final String REGISTRATION_VIEW_ROUTE = "registration";
     public static final String CONFIRMATION_VIEW_ROUTE = "confirmation";
-    public static final String LOGIN_VIEW_ROUTE = "";
+    public static final String LOGIN_VIEW_ROUTE = "/";
     public static final String CINEMA_VIEW_ROUTE = "cinemas";
     public static final String PROJECTION_VIEW_ROUTE = "projections";
     public static final String TICKET_VIEW_ROUTE = "tickets";

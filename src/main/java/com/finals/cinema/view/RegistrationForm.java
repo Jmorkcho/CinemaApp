@@ -1,10 +1,10 @@
 package com.finals.cinema.view;
 
+import com.finals.cinema.configuration.EmailService;
 import com.finals.cinema.model.DTO.RegisterDTO;
 import com.finals.cinema.model.DTO.UserWithoutPassDTO;
 import com.finals.cinema.model.entity.UserStatus;
 import com.finals.cinema.model.repository.ConfirmationTokenRepository;
-import com.finals.cinema.service.EmailSenderService;
 import com.finals.cinema.service.UserService;
 import com.finals.cinema.util.exceptions.BadRequestException;
 import com.vaadin.flow.component.HasValueAndElement;
@@ -26,7 +26,6 @@ import java.time.Period;
 import java.util.Locale;
 import java.util.stream.Stream;
 
-import static com.finals.cinema.util.Constants.CONFIRMATION_VIEW_ROUTE;
 import static com.finals.cinema.util.Constants.MAIN_VIEW_ROUTE;
 
 
@@ -51,7 +50,9 @@ public class RegistrationForm extends FormLayout {
     private DatePicker datePicker;
     private Locale englishLocale;
 
-    public RegistrationForm(UserService userService, ConfirmationTokenRepository confirmationTokenRepository, EmailSenderService emailSenderService) {
+    public RegistrationForm(UserService userService, ConfirmationTokenRepository confirmationTokenRepository,
+                            //EmailSenderService emailSenderService
+                            EmailService emailService) {
 
         title = new H3("Signup form");
         firstName = new TextField("First name");
@@ -82,7 +83,7 @@ public class RegistrationForm extends FormLayout {
                         !username.getValue().isBlank() && !email.getValue().isBlank() && !password.getValue().isBlank() &&
                         !passwordConfirm.getValue().isBlank() && !status.getValue().isBlank() && datePicker.getValue() != null) {
                     UserWithoutPassDTO register = register(userService);
-//                    sendConfirmationToken(confirmationTokenRepository, register, emailSenderService);
+                    sendConfirmationTokenJD(confirmationTokenRepository, register, emailService);
 //                    UI.getCurrent().navigate(CONFIRMATION_VIEW_ROUTE);
                     UI.getCurrent().navigate(MAIN_VIEW_ROUTE);
                 } else {
@@ -113,18 +114,35 @@ public class RegistrationForm extends FormLayout {
         setColspan(submitButton, 2);
     }
 
-    private void sendConfirmationToken(ConfirmationTokenRepository confirmationTokenRepository,
-                                       UserWithoutPassDTO register, EmailSenderService emailSenderService) {
+   // private void sendConfirmationToken(ConfirmationTokenRepository confirmationTokenRepository,
+   //                                    UserWithoutPassDTO register, EmailSenderService emailSenderService) {
+//
+   //     SimpleMailMessage mailMessage = new SimpleMailMessage();
+   //     mailMessage.setTo(register.getEmail());
+   //     mailMessage.setSubject("Complete Registration!");
+   //     mailMessage.setFrom("kinoarenaproject@gmail.com");
+   //     mailMessage.setText("To confirm your account, please click here : " +
+   //             "http://localhost:8888/confirm-account?token=" +
+   //             confirmationTokenRepository.findByUserId(register.getId()).getConfirmationToken());
+   //     emailSenderService.sendEmail(mailMessage);
+   // }
+
+    private void sendConfirmationTokenJD(ConfirmationTokenRepository confirmationTokenRepository,
+                                       UserWithoutPassDTO register, EmailService emailService) {
 
         SimpleMailMessage mailMessage = new SimpleMailMessage();
         mailMessage.setTo(register.getEmail());
         mailMessage.setSubject("Complete Registration!");
         mailMessage.setFrom("kinoarenaproject@gmail.com");
-        mailMessage.setText("To confirm your account, please click here : " +
+        //mailMessage.setText("To confirm your account, please click here : " +
+        //        "http://localhost:8888/confirm-account?token=" +
+        //        confirmationTokenRepository.findByUserId(register.getId()).getConfirmationToken());
+
+        emailService.sendNewMail(register.getEmail(),"Complete registration","To confirm your account, please click here : " +
                 "http://localhost:8888/confirm-account?token=" +
                 confirmationTokenRepository.findByUserId(register.getId()).getConfirmationToken());
-        emailSenderService.sendEmail(mailMessage);
     }
+
 
     private UserWithoutPassDTO register(UserService userService) throws BadRequestException {
         int age = calculateAge(datePicker.getValue());

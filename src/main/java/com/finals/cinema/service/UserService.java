@@ -98,7 +98,8 @@ public class UserService extends AbstractService {
     }
 
     public void logout() {
-        UI.getCurrent().navigate(LOGIN_VIEW_ROUTE);
+        UI.getCurrent().getPage().setLocation(LOGIN_VIEW_ROUTE);
+        VaadinSession.getCurrent().getSession().invalidate();
         SecurityContextLogoutHandler logoutHandler = new SecurityContextLogoutHandler();
         logoutHandler.logout(
                 VaadinServletRequest.getCurrent().getHttpServletRequest(), null,
@@ -106,7 +107,6 @@ public class UserService extends AbstractService {
     }
 
     private void createRoutes(int role) {
-
         getAuthorizedRoutes(role).stream()
                 .forEach(route ->
                         RouteConfiguration.forSessionScope().setRoute(
@@ -119,14 +119,12 @@ public class UserService extends AbstractService {
         var routes = new ArrayList<AuthorizedRoute>();
         if (role == ROLE_USER) {
             routes.add(new AuthorizedRoute("", "Login", LoginView.class));
-            routes.add(new AuthorizedRoute("registration", "Registration", RegistrationView.class));
             routes.add(new AuthorizedRoute("main", "Home", MainView.class));
             routes.add(new AuthorizedRoute("tickets", "Home", TicketView.class));
             routes.add(new AuthorizedRoute("projections", "Logout", ProjectionView.class));
             routes.add(new AuthorizedRoute("cinemas", "Logout", CinemaView.class));
         } else if (role == ROLE_ADMIN) {
             routes.add(new AuthorizedRoute("", "Login", LoginView.class));
-            routes.add(new AuthorizedRoute("registration", "Registration", RegistrationView.class));
             routes.add(new AuthorizedRoute("main", "Home", MainView.class));
             routes.add(new AuthorizedRoute("tickets", "Home", TicketView.class));
             routes.add(new AuthorizedRoute("projections", "Logout", ProjectionView.class));

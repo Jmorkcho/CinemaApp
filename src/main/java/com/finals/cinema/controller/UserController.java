@@ -11,13 +11,13 @@ import com.finals.cinema.service.UserService;
 import com.finals.cinema.model.entity.User;
 import com.finals.cinema.model.entity.UserStatus;
 
+import com.vaadin.flow.server.VaadinSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.*;
 
 import jakarta.servlet.http.HttpSession;
-//import import jakarta.validation.Valid;
 import jakarta.validation.Valid;
 @Component
 @RestController
@@ -68,13 +68,16 @@ public class UserController extends AbstractController {
 
     @PostMapping(value = "/users/login")
     public UserWithoutTicketAndPassDTO login(@Valid @RequestBody LoginDTO loginDTO, HttpSession ses) throws BadRequestException, UnauthorizedException {
+        User user1 = userRepository.findByUsername(loginDTO.getUsername());
         if (sessionManager.isLogged(ses)) {
             throw new UnauthorizedException("You are currently signed in to an account.Please logout");
         }
         if (!userRepository.findByUsername(loginDTO.getUsername()).isEnabled()) {
             throw new BadRequestException("You need to verify your email first");
         }
+        //VaadinSession.getCurrent().setAttribute(String.valueOf(User.class), user1);
         UserWithoutTicketAndPassDTO user = userService.logInUser(loginDTO.getUsername(), loginDTO.getPassword());
+
         sessionManager.loginUser(ses, user.getId());
         return user;
     }

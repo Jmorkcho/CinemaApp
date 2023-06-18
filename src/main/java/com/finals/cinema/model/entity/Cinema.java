@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.*;
 
 import jakarta.persistence.*;
+
+import java.util.ArrayList;
 import java.util.List;
 
 @Getter
@@ -23,4 +25,5 @@ public class Cinema {
     @OneToMany(mappedBy = "cinema")
     @JsonManagedReference(value = "cinema-hall")
     List<Hall> halls;
+
 }
