@@ -9,6 +9,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 
 
 import java.sql.SQLException;
@@ -17,6 +18,7 @@ import java.sql.SQLException;
 //@Configuration("login")
 @NpmPackage(value = "line-awesome", version = "1.3.0")
 @Theme("flowcrmtutorial")
+@EnableWebSecurity
 public class CinemaApplication implements AppShellConfigurator {
 
     public static void main(String[] args) throws SQLException {

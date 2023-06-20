@@ -1,7 +1,6 @@
 package com.finals.cinema.view;
 
-import com.finals.cinema.model.DTO.UserWithoutTicketAndPassDTO;
-import com.finals.cinema.model.entity.User;
+
 import com.finals.cinema.service.UserService;
 import com.finals.cinema.util.exceptions.BadRequestException;
 import com.vaadin.flow.component.Key;
@@ -9,7 +8,6 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.html.H1;
-import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.login.LoginForm;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -18,10 +16,13 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.dom.ThemeList;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
-import com.vaadin.flow.router.RouteConfiguration;
-import com.vaadin.flow.server.VaadinSession;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 import com.vaadin.flow.theme.lumo.Lumo;
+import org.springframework.context.annotation.Bean;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.provisioning.InMemoryUserDetailsManager;
+import org.springframework.security.provisioning.UserDetailsManager;
 
 import static com.finals.cinema.util.Constants.*;
 
@@ -31,6 +32,8 @@ import static com.finals.cinema.util.Constants.*;
 public class LoginView extends VerticalLayout {
 
     LoginForm login = new LoginForm();
+    TextField username = new TextField("Username");
+    PasswordField password = new PasswordField("Password");
 
     public LoginView(UserService userService) {
         addClassName("login-view");
@@ -40,8 +43,7 @@ public class LoginView extends VerticalLayout {
         getStyle().set("background", "869fcb");
         login.setAction("login");
         H1 title = new H1("Welcome to Best Cinema");
-        var username = new TextField("Username");
-        var password = new PasswordField("Password");
+
         Button loginButton = new Button("Login", event ->
         {
             try {
@@ -62,6 +64,23 @@ public class LoginView extends VerticalLayout {
 
         add(toggleButtonTheme, title, username, password, loginButton, registrationButton);
 
+    }
+
+    @Bean
+    public UserDetailsManager userDetailsService() {
+        UserDetails user =
+                User.withUsername(username.toString())
+                        .password(password.toString())
+                        .roles("ROLE_USER")
+                        .build();
+//        UserDetails admin =
+//                User.withUsername("admin")
+//                        .password("{noop}admin")
+//                        .roles("ADMIN")
+//                        .build();
+        return new InMemoryUserDetailsManager(user
+                //, admin
+                );
     }
 
     private void login(UserService userService, TextField username, PasswordField password) throws BadRequestException {
