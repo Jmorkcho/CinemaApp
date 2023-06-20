@@ -38,12 +38,11 @@ public class SecurityConfig
 
         // Configure your static resources with public access before calling
         // super.configure(HttpSecurity) as it adds final anyRequest matcher
-        http.httpBasic().disable().formLogin().disable();
-
+        http.httpBasic().disable().formLogin().disable().csrf().disable().authorizeHttpRequests().anyRequest().permitAll();
         //http.authorizeHttpRequests().requestMatchers(new AntPathRequestMatcher("/"))
         //        .permitAll();
 
-        super.configure(http);
+       // super.configure(http);
 
         // This is important to register your login view to the
         // view access checker mechanism:
