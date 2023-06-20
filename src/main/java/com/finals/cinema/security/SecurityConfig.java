@@ -7,6 +7,7 @@ import com.vaadin.flow.server.BootstrapException;
 import com.vaadin.flow.spring.security.VaadinWebSecurity;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -37,22 +38,26 @@ public class SecurityConfig
 
         // Configure your static resources with public access before calling
         // super.configure(HttpSecurity) as it adds final anyRequest matcher
-        http.authorizeHttpRequests().requestMatchers(new AntPathRequestMatcher("/main"))
-                .permitAll();
+        http.httpBasic().disable().formLogin().disable();
 
+        //http.authorizeHttpRequests().requestMatchers(new AntPathRequestMatcher("/"))
+        //        .permitAll();
 
-            super.configure(http);
+        super.configure(http);
 
         // This is important to register your login view to the
         // view access checker mechanism:
-        try {
-            setLoginView(http, LoginView.class, "/");
-        }catch (Exception e){
-            System.out.println(e);
-        }
+//        try {
+//            setLoginView(http, LoginView.class, "/");
+//        } catch (Exception e) {
+//            System.out.println(e);
+//        }
 
-            http.formLogin().defaultSuccessUrl("/");
+
     }
+
+     //DaoAuthenticationProvider putka = new DaoAuthenticationProvider();
+    //}
 
     @Override
     public void configure(WebSecurity web) throws Exception {

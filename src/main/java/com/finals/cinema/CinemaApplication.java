@@ -6,6 +6,7 @@ import com.vaadin.flow.component.page.AppShellConfigurator;
 import com.vaadin.flow.theme.Theme;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 import org.springframework.context.annotation.Configuration;
@@ -14,7 +15,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 
 import java.sql.SQLException;
 
-@SpringBootApplication
+@SpringBootApplication(exclude={SecurityAutoConfiguration.class})
 //@Configuration("login")
 @NpmPackage(value = "line-awesome", version = "1.3.0")
 @Theme("flowcrmtutorial")
