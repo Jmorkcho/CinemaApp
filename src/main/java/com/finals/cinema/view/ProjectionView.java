@@ -9,7 +9,7 @@ import com.vaadin.flow.router.Route;
 
 import static com.finals.cinema.util.Constants.PROJECTION_VIEW_ROUTE;
 
-@Route(value = PROJECTION_VIEW_ROUTE)
+@Route(value = PROJECTION_VIEW_ROUTE, layout = MainLayout.class)
 public class ProjectionView extends VerticalLayout {
 
     Grid<Projection> grid = new Grid<>(Projection.class, false);
