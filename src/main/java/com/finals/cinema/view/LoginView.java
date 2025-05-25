@@ -10,6 +10,7 @@ import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.html.Span;
@@ -19,23 +20,45 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.PasswordField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.dom.ThemeList;
-import com.vaadin.flow.router.PageTitle;
-import com.vaadin.flow.router.Route;
-import com.vaadin.flow.router.RouteConfiguration;
+import com.vaadin.flow.router.*;
 import com.vaadin.flow.server.VaadinSession;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 import com.vaadin.flow.theme.lumo.Lumo;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import static com.finals.cinema.util.Constants.*;
 
-//@Route(value = LOGIN_VIEW_ROUTE)
+@CssImport("./styles/login-view.css")
+@Route(value = LOGIN_VIEW_ROUTE)
 @PageTitle("Login | Best Cinema")
 @AnonymousAllowed
-public class LoginView extends VerticalLayout {
+public class LoginView extends VerticalLayout implements BeforeEnterObserver {
+
+    @Override
+    public void beforeEnter(BeforeEnterEvent event) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.isAuthenticated() && !(authentication instanceof AnonymousAuthenticationToken)) {
+            // User already logged in - redirect to main view
+           event.forwardTo(MAIN_VIEW_ROUTE);
+           return;
+        }
+    }
 
     LoginForm login = new LoginForm();
 
     public LoginView(UserService userService, ConfirmationTokenRepository confirmationTokenRepository, EmailService emailService) {
+        addClassName("login-view");
+        UI.getCurrent().getPage().executeJs(
+                "if (localStorage.getItem('darkTheme') === 'true') {" +
+                        "  document.documentElement.setAttribute('theme', 'dark');" +
+                        "}"
+        );
+
+        getElement().getClassList().add("v-visible");
+        System.out.println("LoginView loaded");
+
         addClassName("login-view");
         setSizeFull();
         setAlignItems(Alignment.CENTER);
@@ -74,12 +97,14 @@ public class LoginView extends VerticalLayout {
 
 
     Button toggleButtonTheme = new Button("Toggle dark theme", click -> {
-        ThemeList themeList = UI.getCurrent().getElement().getThemeList(); // (1)
+        ThemeList themeList = UI.getCurrent().getElement().getThemeList();
 
-        if (themeList.contains(Lumo.DARK)) { // (2)
+        if (themeList.contains(Lumo.DARK)) {
             themeList.remove(Lumo.DARK);
+            UI.getCurrent().getPage().executeJs("localStorage.setItem('darkTheme', 'false');");
         } else {
             themeList.add(Lumo.DARK);
+            UI.getCurrent().getPage().executeJs("localStorage.setItem('darkTheme', 'true');");
         }
     });
 

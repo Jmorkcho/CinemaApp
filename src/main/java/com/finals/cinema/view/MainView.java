@@ -11,6 +11,7 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.server.auth.AnonymousAllowed;
 import jakarta.annotation.security.RolesAllowed;
 
 import java.util.List;
@@ -21,20 +22,18 @@ import static com.finals.cinema.util.Constants.MAIN_VIEW_ROUTE;
 @Route(value = MAIN_VIEW_ROUTE, layout = MainLayout.class)
 @PageTitle("Main")
 //TODO
-@RolesAllowed({"ROLE_USER", "ROLE_ADMIN"})
 public class MainView extends VerticalLayout {
 
     Grid<Movie> cinemaGrid = new Grid<>(Movie.class, false);
 
 
     public MainView(MovieRepository movieRepository) {
+        System.out.println("MainView loaded");
         addClassName("status-list-view");
         setSizeFull();
         configureGrid(movieRepository);
         add(getContent(movieRepository));
-
     }
-
 
     private Component getContent(MovieRepository movieRepository) {
         HorizontalLayout content = new HorizontalLayout();

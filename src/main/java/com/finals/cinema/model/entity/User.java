@@ -3,10 +3,14 @@ package com.finals.cinema.model.entity;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import lombok.*;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Component;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 
@@ -36,4 +40,27 @@ public class User {
     @JsonManagedReference
     private List<Ticket> tickets;
     private boolean isEnabled;
+
+    // Method to get authorities based on roleId
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        Collection<GrantedAuthority> authorities = new ArrayList<>();
+
+        // Map roleId to roles
+        switch (roleId) {
+            case 1:
+                authorities.add(new SimpleGrantedAuthority("ROLE_USER"));
+                break;
+            case 2:
+                authorities.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
+                break;
+            // Add more roles as needed
+            default:
+                break;
+        }
+
+        return authorities;
+    }
+
 }
+
+

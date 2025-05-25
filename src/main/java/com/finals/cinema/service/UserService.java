@@ -14,12 +14,19 @@ import com.finals.cinema.view.*;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.router.RouteConfiguration;
+import com.vaadin.flow.server.VaadinService;
 import com.vaadin.flow.server.VaadinServletRequest;
 import com.vaadin.flow.server.VaadinSession;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
@@ -78,6 +85,24 @@ public class UserService extends AbstractService {
         User user = userRepository.findByUsername(username);
         if (user != null && passwordEncoder.matches(password, user.getPassword())) {
 
+            // Create an Authentication object
+            Authentication authentication = new UsernamePasswordAuthenticationToken(
+                    user,
+                    null,
+                    user.getAuthorities() // Assuming you have a method to get user authorities
+            );
+
+            // Persist the SecurityContext into the HTTP session
+            HttpSession session = ((VaadinServletRequest) VaadinService.getCurrentRequest())
+                    .getHttpServletRequest()
+                    .getSession(true);
+            session.setAttribute(
+                    HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY,
+                    new SecurityContextImpl(authentication)
+            );
+
+            // Set the authentication in the SecurityContext
+            SecurityContextHolder.getContext().setAuthentication(authentication);
             VaadinSession.getCurrent().setAttribute(User.class, user);
             createRoutes(user.getRoleId());
             return new UserWithoutTicketAndPassDTO(user);
@@ -98,7 +123,7 @@ public class UserService extends AbstractService {
     }
 
     public void logout() {
-        UI.getCurrent().getPage().setLocation(LOGIN_VIEW_ROUTE);
+        UI.getCurrent().getPage().setLocation(MAIN_VIEW_ROUTE);
         VaadinSession.getCurrent().getSession().invalidate();
         SecurityContextLogoutHandler logoutHandler = new SecurityContextLogoutHandler();
         logoutHandler.logout(

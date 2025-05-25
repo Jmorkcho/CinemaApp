@@ -17,6 +17,9 @@ import com.vaadin.flow.dom.ThemeList;
 import com.vaadin.flow.router.HighlightConditions;
 import com.vaadin.flow.router.RouterLink;
 import com.vaadin.flow.theme.lumo.Lumo;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import static com.finals.cinema.util.Constants.*;
 
@@ -35,16 +38,24 @@ public class MainLayout extends AppLayout {
             UI.getCurrent().navigate(MAIN_VIEW_ROUTE);
         });
         logo.addClassNames("text-l", "m-m");
+        UI.getCurrent().getPage().executeJs(
+                "if (localStorage.getItem('darkTheme') === 'true') {" +
+                        "  document.documentElement.setAttribute('theme', 'dark');" +
+                        "}"
+        );
+
 
         Button logout = new Button("Log out", event -> userService.logout());
 
         Button toggleButtonTheme = new Button("Toggle dark theme", click -> {
-            ThemeList themeList = UI.getCurrent().getElement().getThemeList(); // (1)
+            ThemeList themeList = UI.getCurrent().getElement().getThemeList();
 
-            if (themeList.contains(Lumo.DARK)) { // (2)
+            if (themeList.contains(Lumo.DARK)) {
                 themeList.remove(Lumo.DARK);
+                UI.getCurrent().getPage().executeJs("localStorage.setItem('darkTheme', 'false');");
             } else {
                 themeList.add(Lumo.DARK);
+                UI.getCurrent().getPage().executeJs("localStorage.setItem('darkTheme', 'true');");
             }
         });
 
@@ -65,15 +76,29 @@ public class MainLayout extends AppLayout {
         header.setWidth("100%");
         header.addClassNames("py-0", "px-m");
 
-// Create a new layout for the right-aligned buttons
-        HorizontalLayout rightButtons = new HorizontalLayout(whatIsOn, allCinemas, toggleButtonTheme, logout);
-        rightButtons.setJustifyContentMode(FlexComponent.JustifyContentMode.END);
-        rightButtons.setWidth("100%");
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.isAuthenticated() && !(authentication instanceof AnonymousAuthenticationToken)) {
+            // User is logged in, show logout button
+            HorizontalLayout rightButtons = new HorizontalLayout(whatIsOn, allCinemas, toggleButtonTheme, logout);
+            rightButtons.setJustifyContentMode(FlexComponent.JustifyContentMode.END);
+            rightButtons.setWidth("100%");
 
-// Add the right buttons layout to the header
-        header.add(rightButtons);
+            header.add(rightButtons);
 
-        addToNavbar(header);
+            addToNavbar(header);
+            System.out.println("User is authenticated.");
+        } else
+        {
+            // User is not logged in, don't show out logout button
+            HorizontalLayout rightButtons = new HorizontalLayout(whatIsOn, allCinemas, toggleButtonTheme);
+            rightButtons.setJustifyContentMode(FlexComponent.JustifyContentMode.END);
+            rightButtons.setWidth("100%");
+
+            header.add(rightButtons);
+
+            addToNavbar(header);
+            System.out.println("User is not authenticated.");
+        }
 
     }
 
@@ -90,7 +115,6 @@ public class MainLayout extends AppLayout {
         listLink.setHighlightCondition(HighlightConditions.sameLocation());
 
         addToDrawer(new VerticalLayout(
-
 
                 new RouterLink("Buy Tickets", TicketView.class),
                 new RouterLink("Cinemas", CinemaView.class),
