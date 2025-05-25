@@ -114,19 +114,6 @@ public class RegistrationForm extends FormLayout {
         setColspan(submitButton, 2);
     }
 
-   // private void sendConfirmationToken(ConfirmationTokenRepository confirmationTokenRepository,
-   //                                    UserWithoutPassDTO register, EmailSenderService emailSenderService) {
-//
-   //     SimpleMailMessage mailMessage = new SimpleMailMessage();
-   //     mailMessage.setTo(register.getEmail());
-   //     mailMessage.setSubject("Complete Registration!");
-   //     mailMessage.setFrom("kinoarenaproject@gmail.com");
-   //     mailMessage.setText("To confirm your account, please click here : " +
-   //             "http://localhost:8888/confirm-account?token=" +
-   //             confirmationTokenRepository.findByUserId(register.getId()).getConfirmationToken());
-   //     emailSenderService.sendEmail(mailMessage);
-   // }
-
     private void sendConfirmationTokenJD(ConfirmationTokenRepository confirmationTokenRepository,
                                        UserWithoutPassDTO register, EmailService emailService) {
 
@@ -134,9 +121,6 @@ public class RegistrationForm extends FormLayout {
         mailMessage.setTo(register.getEmail());
         mailMessage.setSubject("Complete Registration!");
         mailMessage.setFrom("kinoarenaproject@gmail.com");
-        //mailMessage.setText("To confirm your account, please click here : " +
-        //        "http://localhost:8888/confirm-account?token=" +
-        //        confirmationTokenRepository.findByUserId(register.getId()).getConfirmationToken());
 
         emailService.sendNewMail(register.getEmail(),"Complete registration","To confirm your account, please click here : " +
                 "http://localhost:8888/confirm-account?token=" +

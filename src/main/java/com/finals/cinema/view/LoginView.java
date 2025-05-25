@@ -1,13 +1,16 @@
 package com.finals.cinema.view;
 
+import com.finals.cinema.configuration.EmailService;
 import com.finals.cinema.model.DTO.UserWithoutTicketAndPassDTO;
 import com.finals.cinema.model.entity.User;
+import com.finals.cinema.model.repository.ConfirmationTokenRepository;
 import com.finals.cinema.service.UserService;
 import com.finals.cinema.util.exceptions.BadRequestException;
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.login.LoginForm;
@@ -25,14 +28,14 @@ import com.vaadin.flow.theme.lumo.Lumo;
 
 import static com.finals.cinema.util.Constants.*;
 
-@Route(value = LOGIN_VIEW_ROUTE)
+//@Route(value = LOGIN_VIEW_ROUTE)
 @PageTitle("Login | Best Cinema")
 @AnonymousAllowed
 public class LoginView extends VerticalLayout {
 
     LoginForm login = new LoginForm();
 
-    public LoginView(UserService userService) {
+    public LoginView(UserService userService, ConfirmationTokenRepository confirmationTokenRepository, EmailService emailService) {
         addClassName("login-view");
         setSizeFull();
         setAlignItems(Alignment.CENTER);
@@ -54,13 +57,13 @@ public class LoginView extends VerticalLayout {
                     throw new BadRequestException("Please fill all the necessary fields");
                 }
             } catch (BadRequestException e) {
-                Notification.show(e.getMessage(), -1, Notification.Position.BOTTOM_CENTER);
+                Notification.show(e.getMessage(), 2500, Notification.Position.BOTTOM_CENTER);
             }
         });
         loginButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
         loginButton.addClickShortcut(Key.ENTER);
-
-        add(toggleButtonTheme, title, username, password, loginButton, registrationButton);
+        Button openRegistrationButton = new Button("RegisterDialog", event -> openRegistrationDialog(userService, confirmationTokenRepository, emailService));
+        add(toggleButtonTheme, title, username, password, loginButton, registrationButton, openRegistrationButton);
 
     }
 
@@ -81,4 +84,19 @@ public class LoginView extends VerticalLayout {
     });
 
     Button registrationButton = new Button("Register", event -> UI.getCurrent().navigate(REGISTRATION_VIEW_ROUTE));
+
+    private void openRegistrationDialog(UserService userService, ConfirmationTokenRepository confirmationTokenRepository, EmailService emailService) {
+        Dialog registrationDialog = new Dialog();
+        registrationDialog.setCloseOnEsc(true);
+        registrationDialog.setCloseOnOutsideClick(true);
+
+        RegistrationForm registrationForm = new RegistrationForm(userService, confirmationTokenRepository, emailService);
+        registrationDialog.add(registrationForm);
+
+        // Optionally, you can add a close button
+        Button closeButton = new Button("Close", event -> registrationDialog.close());
+        registrationDialog.add(closeButton);
+
+        registrationDialog.open();
+    }
 }

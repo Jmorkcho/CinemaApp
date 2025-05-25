@@ -10,3 +10,7 @@ a[highlight] {
     font-weight: bold;
     text-decoration: underline;
 }
+
+.status-list-view {
+  background-image: url("images/spider.jpg");
+}

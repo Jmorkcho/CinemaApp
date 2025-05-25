@@ -18,6 +18,7 @@ public class Constants {
     public static final String CONFIRMATION_VIEW_ROUTE = "confirmation";
     public static final String LOGIN_VIEW_ROUTE = "/";
     public static final String CINEMA_VIEW_ROUTE = "cinemas";
+    public static final String NEWEST_FILMS_VIEW_ROUTE = "newestfilms";
     public static final String PROJECTION_VIEW_ROUTE = "projections";
     public static final String TICKET_VIEW_ROUTE = "tickets";
     public static final String ADMIN_VIEW_ROUTE = "admin_panel";

@@ -2,6 +2,7 @@ package com.finals.cinema.view;
 
 import com.finals.cinema.configuration.EmailService;
 import com.finals.cinema.model.repository.ConfirmationTokenRepository;
+import com.finals.cinema.service.MovieService;
 import com.finals.cinema.service.UserService;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
@@ -18,7 +19,7 @@ import static com.finals.cinema.util.Constants.REGISTRATION_VIEW_ROUTE;
 @EnableAutoConfiguration
 public class RegistrationView extends VerticalLayout {
 
-    public RegistrationView(UserService userService, ConfirmationTokenRepository confirmationTokenRepository,
+    public RegistrationView(UserService userService, ConfirmationTokenRepository confirmationTokenRepository, MovieService movieService,
                             //EmailSenderService emailSenderService
                             EmailService emailService) {
 
@@ -29,5 +30,8 @@ public class RegistrationView extends VerticalLayout {
         // Center the RegistrationForm
         setHorizontalComponentAlignment(Alignment.CENTER, registrationForm);
         add(registrationForm);
+
+        MainLayout mainLayout = new MainLayout(userService, movieService);
+        add(mainLayout);
     }
 }

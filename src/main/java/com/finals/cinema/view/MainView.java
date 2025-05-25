@@ -5,8 +5,10 @@ import com.finals.cinema.model.repository.MovieRepository;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Image;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import jakarta.annotation.security.RolesAllowed;
@@ -28,7 +30,7 @@ public class MainView extends VerticalLayout {
     public MainView(MovieRepository movieRepository) {
         addClassName("status-list-view");
         setSizeFull();
-//        configureGrid(movieRepository);
+        configureGrid(movieRepository);
         add(getContent(movieRepository));
 
     }
