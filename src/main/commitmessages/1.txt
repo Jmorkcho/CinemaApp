@@ -1,0 +1,2 @@
+last commit message - 25.05.25 11:01
+ git commit -ammend -m "css try to fix flicker, user authentication(getauthorities), rootredirectview class -> always go to /main, add SecurityConfig class, Httpsession and authentication to perist auth object through page refreshes, set logout to /main page, change login page from / to /signin, try to implement beforeEnter method/event to forward to /main if user tries to go to /signin page, add some js to persist dark theme and save to local storage,"
