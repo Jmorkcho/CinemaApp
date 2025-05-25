@@ -23,7 +23,7 @@ public class CinemaView extends VerticalLayout {
 
     public CinemaView(CinemaRepository repository) {
         this.repository = repository;
-        addClassName("list-view");
+        addClassName("cinema-view");
         setSizeFull();
         configureGrid();
 

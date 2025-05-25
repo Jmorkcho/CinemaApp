@@ -17,7 +17,7 @@ public class ProjectionView extends VerticalLayout {
 
     public ProjectionView(ProjectionRepository repository) {
         this.repository = repository;
-        addClassName("list-view");
+        addClassName("projections-view");
         setSizeFull();
         configureGrid();
 

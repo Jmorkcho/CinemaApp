@@ -1,12 +1,17 @@
 package com.finals.cinema.view;
 
 
+import com.finals.cinema.configuration.EmailService;
+import com.finals.cinema.model.repository.ConfirmationTokenRepository;
 import com.finals.cinema.service.MovieService;
 import com.finals.cinema.service.UserService;
+import com.vaadin.flow.component.ClientCallable;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.applayout.DrawerToggle;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.html.Image;
@@ -15,6 +20,7 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.dom.ThemeList;
 import com.vaadin.flow.router.HighlightConditions;
+import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouterLink;
 import com.vaadin.flow.theme.lumo.Lumo;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
@@ -27,43 +33,44 @@ import static com.finals.cinema.util.Constants.*;
 public class MainLayout extends AppLayout {
 
 
-    public MainLayout(UserService userService, MovieService movieService) {
-        createHeader(userService, movieService);
+    public MainLayout(UserService userService, MovieService movieService,
+                      ConfirmationTokenRepository confirmationTokenRepository, EmailService emailService) {
+        createHeader(userService, movieService, confirmationTokenRepository, emailService);
         createDrawer();
+        UI ui = UI.getCurrent();
+        ui.getPage().executeJs(
+                "const dark = localStorage.getItem('darkTheme') === 'true';" +
+                        "if (dark) {" +
+                        "  document.documentElement.setAttribute('theme', 'dark');" +
+                        "  $0.$server.applyDarkTheme();" +
+                        "}", ui);
     }
 
-    public void createHeader(UserService userService, MovieService movieService) {
+    public void createHeader(UserService userService, MovieService movieService,
+                             ConfirmationTokenRepository confirmationTokenRepository, EmailService emailService) {
         H1 logo = new H1("Best Cinema");
         Button LogoMain = new Button("Best Cinema", event -> {
             UI.getCurrent().navigate(MAIN_VIEW_ROUTE);
         });
         logo.addClassNames("text-l", "m-m");
-        UI.getCurrent().getPage().executeJs(
-                "if (localStorage.getItem('darkTheme') === 'true') {" +
-                        "  document.documentElement.setAttribute('theme', 'dark');" +
-                        "}"
-        );
-
 
         Button logout = new Button("Log out", event -> userService.logout());
 
-        Button toggleButtonTheme = new Button("Toggle dark theme", click -> {
-            ThemeList themeList = UI.getCurrent().getElement().getThemeList();
-
-            if (themeList.contains(Lumo.DARK)) {
-                themeList.remove(Lumo.DARK);
-                UI.getCurrent().getPage().executeJs("localStorage.setItem('darkTheme', 'false');");
-            } else {
-                themeList.add(Lumo.DARK);
-                UI.getCurrent().getPage().executeJs("localStorage.setItem('darkTheme', 'true');");
-            }
+        Button toggleButtonTheme = new Button("\uD83C\uDF17", click -> {
+            UI.getCurrent().getPage().executeJs(
+                    "const html = document.documentElement;" +
+                            "const isDark = html.getAttribute('theme') === 'dark';" +
+                            "if (isDark) {" +
+                            "  html.removeAttribute('theme');" +
+                            "  localStorage.setItem('darkTheme', 'false');" +
+                            "} else {" +
+                            "  html.setAttribute('theme', 'dark');" +
+                            "  localStorage.setItem('darkTheme', 'true');" +
+                            "}"
+            );
         });
 
-        Button whatIsOn = new Button("What's on", event -> getWhatIsOn());
-
-        Button allCinemas = new Button("Cinemas", event -> {
-            UI.getCurrent().navigate(CINEMA_VIEW_ROUTE);
-        });
+        Button login = new Button("Login", event -> openLoginDialog(userService, confirmationTokenRepository, emailService));
 
         HorizontalLayout header = new HorizontalLayout(
                 new DrawerToggle(),
@@ -79,7 +86,7 @@ public class MainLayout extends AppLayout {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && authentication.isAuthenticated() && !(authentication instanceof AnonymousAuthenticationToken)) {
             // User is logged in, show logout button
-            HorizontalLayout rightButtons = new HorizontalLayout(whatIsOn, allCinemas, toggleButtonTheme, logout);
+            HorizontalLayout rightButtons = new HorizontalLayout(toggleButtonTheme, logout);
             rightButtons.setJustifyContentMode(FlexComponent.JustifyContentMode.END);
             rightButtons.setWidth("100%");
 
@@ -90,7 +97,7 @@ public class MainLayout extends AppLayout {
         } else
         {
             // User is not logged in, don't show out logout button
-            HorizontalLayout rightButtons = new HorizontalLayout(whatIsOn, allCinemas, toggleButtonTheme);
+            HorizontalLayout rightButtons = new HorizontalLayout(toggleButtonTheme, login);
             rightButtons.setJustifyContentMode(FlexComponent.JustifyContentMode.END);
             rightButtons.setWidth("100%");
 
@@ -119,6 +126,29 @@ public class MainLayout extends AppLayout {
                 new RouterLink("Buy Tickets", TicketView.class),
                 new RouterLink("Cinemas", CinemaView.class),
                 new RouterLink("Projections", ProjectionView.class)
+//                new RouterLink("WhatIsOn", WhatIsOn.class)
         ));
     }
+
+    private void openLoginDialog(UserService userService, ConfirmationTokenRepository confirmationTokenRepository, EmailService emailService) {
+        Dialog loginDialog = new Dialog();
+        loginDialog.setCloseOnEsc(true);
+        loginDialog.setCloseOnOutsideClick(true);
+
+        LoginForm loginForm = new LoginForm(userService, confirmationTokenRepository, emailService, loginDialog);
+
+        Button closeButton = new Button("✖", event -> loginDialog.close());
+        closeButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY_INLINE);
+        closeButton.getStyle()
+                .set("margin-left", "auto")
+                .set("margin-top", "0")
+                .set("margin-right", "0")
+                .set("position", "absolute")
+                .set("top", "0.5rem")
+                .set("right", "0.5rem");
+
+        loginDialog.add(closeButton, loginForm);
+        loginDialog.open();
+    }
+
 }

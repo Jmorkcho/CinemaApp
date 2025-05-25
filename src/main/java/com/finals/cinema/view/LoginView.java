@@ -6,6 +6,7 @@ import com.finals.cinema.model.entity.User;
 import com.finals.cinema.model.repository.ConfirmationTokenRepository;
 import com.finals.cinema.service.UserService;
 import com.finals.cinema.util.exceptions.BadRequestException;
+import com.vaadin.flow.component.ClientCallable;
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
@@ -46,15 +47,17 @@ public class LoginView extends VerticalLayout implements BeforeEnterObserver {
         }
     }
 
-    LoginForm login = new LoginForm();
+    //LoginForm login = new LoginForm();
 
     public LoginView(UserService userService, ConfirmationTokenRepository confirmationTokenRepository, EmailService emailService) {
         addClassName("login-view");
-        UI.getCurrent().getPage().executeJs(
-                "if (localStorage.getItem('darkTheme') === 'true') {" +
+        UI ui = UI.getCurrent();
+        ui.getPage().executeJs(
+                "const dark = localStorage.getItem('darkTheme') === 'true';" +
+                        "if (dark) {" +
                         "  document.documentElement.setAttribute('theme', 'dark');" +
-                        "}"
-        );
+                        "  $0.$server.applyDarkTheme();" +
+                        "}", ui);
 
         getElement().getClassList().add("v-visible");
         System.out.println("LoginView loaded");
@@ -64,7 +67,7 @@ public class LoginView extends VerticalLayout implements BeforeEnterObserver {
         setAlignItems(Alignment.CENTER);
         setJustifyContentMode(JustifyContentMode.CENTER);
         getStyle().set("background", "869fcb");
-        login.setAction("login");
+       //login.setAction("login");
         H1 title = new H1("Welcome to Best Cinema");
         var username = new TextField("Username");
         var password = new PasswordField("Password");
@@ -96,16 +99,18 @@ public class LoginView extends VerticalLayout implements BeforeEnterObserver {
     }
 
 
-    Button toggleButtonTheme = new Button("Toggle dark theme", click -> {
-        ThemeList themeList = UI.getCurrent().getElement().getThemeList();
-
-        if (themeList.contains(Lumo.DARK)) {
-            themeList.remove(Lumo.DARK);
-            UI.getCurrent().getPage().executeJs("localStorage.setItem('darkTheme', 'false');");
-        } else {
-            themeList.add(Lumo.DARK);
-            UI.getCurrent().getPage().executeJs("localStorage.setItem('darkTheme', 'true');");
-        }
+    Button toggleButtonTheme = new Button("\uD83C\uDF17", click -> {
+        UI.getCurrent().getPage().executeJs(
+                "const html = document.documentElement;" +
+                        "const isDark = html.getAttribute('theme') === 'dark';" +
+                        "if (isDark) {" +
+                        "  html.removeAttribute('theme');" +
+                        "  localStorage.setItem('darkTheme', 'false');" +
+                        "} else {" +
+                        "  html.setAttribute('theme', 'dark');" +
+                        "  localStorage.setItem('darkTheme', 'true');" +
+                        "}"
+        );
     });
 
     Button registrationButton = new Button("Register", event -> UI.getCurrent().navigate(REGISTRATION_VIEW_ROUTE));
@@ -115,7 +120,7 @@ public class LoginView extends VerticalLayout implements BeforeEnterObserver {
         registrationDialog.setCloseOnEsc(true);
         registrationDialog.setCloseOnOutsideClick(true);
 
-        RegistrationForm registrationForm = new RegistrationForm(userService, confirmationTokenRepository, emailService);
+        RegistrationForm registrationForm = new RegistrationForm(userService, confirmationTokenRepository, emailService, registrationDialog);
         registrationDialog.add(registrationForm);
 
         // Optionally, you can add a close button
@@ -123,5 +128,10 @@ public class LoginView extends VerticalLayout implements BeforeEnterObserver {
         registrationDialog.add(closeButton);
 
         registrationDialog.open();
+    }
+
+    @ClientCallable
+    public void applyDarkTheme() {
+        UI.getCurrent().getElement().getThemeList().add(Lumo.DARK);
     }
 }

@@ -12,6 +12,7 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.datepicker.DatePicker;
+import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.notification.Notification;
@@ -50,9 +51,13 @@ public class RegistrationForm extends FormLayout {
     private DatePicker datePicker;
     private Locale englishLocale;
 
+    private final Dialog registrationDialog;
+
     public RegistrationForm(UserService userService, ConfirmationTokenRepository confirmationTokenRepository,
                             //EmailSenderService emailSenderService
-                            EmailService emailService) {
+                            EmailService emailService, Dialog registrationDialog) {
+
+        this.registrationDialog=registrationDialog;
 
         title = new H3("Signup form");
         firstName = new TextField("First name");
@@ -86,6 +91,7 @@ public class RegistrationForm extends FormLayout {
                     sendConfirmationTokenJD(confirmationTokenRepository, register, emailService);
 //                    UI.getCurrent().navigate(CONFIRMATION_VIEW_ROUTE);
                     UI.getCurrent().navigate(MAIN_VIEW_ROUTE);
+                    registrationDialog.close();
                 } else {
                     throw new BadRequestException("Please fill all the necessary fields");
                 }
@@ -166,5 +172,11 @@ public class RegistrationForm extends FormLayout {
     private void setRequiredIndicatorVisible(HasValueAndElement<?, ?>... components) {
         Stream.of(components).forEach(comp -> comp.setRequiredIndicatorVisible(true));
     }
+
+    // Constructor for standalone page use -> for RegistrationView.java
+    public RegistrationForm(UserService userService, ConfirmationTokenRepository tokenRepo, EmailService emailService) {
+        this(userService, tokenRepo, emailService, null); // Call the 4-param constructor with null
+    }
+
 
 }

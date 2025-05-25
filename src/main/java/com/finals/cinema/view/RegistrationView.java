@@ -31,7 +31,7 @@ public class RegistrationView extends VerticalLayout {
         setHorizontalComponentAlignment(Alignment.CENTER, registrationForm);
         add(registrationForm);
 
-        MainLayout mainLayout = new MainLayout(userService, movieService);
-        add(mainLayout);
+        //MainLayout mainLayout = new MainLayout(userService, movieService);
+        //add(mainLayout);
     }
 }
