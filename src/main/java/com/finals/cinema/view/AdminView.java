@@ -5,7 +5,6 @@ import com.finals.cinema.model.entity.User;
 import com.finals.cinema.service.MovieService;
 import com.finals.cinema.service.UserService;
 import com.finals.cinema.util.exceptions.UnauthorizedException;
-import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dialog.Dialog;
@@ -20,14 +19,28 @@ import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.Tabs;
 import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextField;
-import com.vaadin.flow.data.provider.ListDataProvider;
+import com.vaadin.flow.router.BeforeEnterEvent;
+import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.Route;
-import jakarta.annotation.security.RolesAllowed;
+import org.springframework.security.access.annotation.Secured;
+
+import static com.finals.cinema.util.Constants.ROLE_ADMIN;
 
 
-@RolesAllowed("ROLE_ADMIN")
+@Secured("ROLE_ADMIN")
 @Route(value = "admin_panel", layout = MainLayout.class)
-public class AdminView extends VerticalLayout {
+public class AdminView extends VerticalLayout implements BeforeEnterObserver {
+
+    @Override
+    public void beforeEnter(BeforeEnterEvent event) {
+        try {
+            if (userService.getCurrentUserRole() != ROLE_ADMIN) {
+                event.forwardTo(AccessDeniedView.class);
+            }
+        } catch (Exception e) {
+            event.forwardTo(AccessDeniedView.class);
+        }
+    }
 
     private final MovieService movieService;
     private final UserService userService;

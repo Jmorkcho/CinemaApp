@@ -5,6 +5,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.access.expression.WebExpressionAuthorizationManager;
 import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 
@@ -15,8 +16,19 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/", "/signin", "/register", "cinemas", "/main", "/images/**", "/img/**", "/styles/**", "/VAADIN/**").permitAll()
+                        .requestMatchers("/", "/signin", "/register", "cinemas", "/main", "/images/**", "/img/**", "/styles/**", "/VAADIN/**", "/access_denied").permitAll()
+                        .requestMatchers("/admin_panel").access(new WebExpressionAuthorizationManager("hasRole('ADMIN')"))
                         .anyRequest().authenticated()
+                )
+                .exceptionHandling(exception -> exception
+                        .accessDeniedHandler((request, response, accessDeniedException) -> {
+                            // Handles authenticated but unauthorized users
+                            response.sendRedirect("/access_denied");
+                        })
+                        .authenticationEntryPoint((request, response, authException) -> {
+                            // Handles unauthenticated users
+                            response.sendRedirect("/access_denied");
+                        })
                 )
                 .csrf(csrf -> csrf.disable()
                 )

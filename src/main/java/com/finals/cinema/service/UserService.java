@@ -21,6 +21,7 @@ import com.vaadin.flow.server.VaadinSession;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -140,9 +141,10 @@ public class UserService extends AbstractService {
 
     }
 
+    @Secured("ROLE_ADMIN")
     public void deleteUser(int userId) throws UnauthorizedException{
         if (!isAdmin(userId)) {
-            throw new UnauthorizedException("Only admins can remove movies");
+            throw new UnauthorizedException("Only admins can delete users!");
         }
         userRepository.deleteById(userId);
     }
