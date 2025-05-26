@@ -42,7 +42,6 @@ public class MainLayout extends AppLayout {
                 "const dark = localStorage.getItem('darkTheme') === 'true';" +
                         "if (dark) {" +
                         "  document.documentElement.setAttribute('theme', 'dark');" +
-                        "  $0.$server.applyDarkTheme();" +
                         "}", ui);
     }
 
