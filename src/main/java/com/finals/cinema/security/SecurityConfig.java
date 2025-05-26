@@ -16,7 +16,7 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/", "/signin", "/register", "cinemas", "/main", "/images/**", "/img/**", "/styles/**", "/VAADIN/**", "/access_denied").permitAll()
+                        .requestMatchers("/", "/signin", "/register", "/cinemas/**", "/main", "/images/**", "/img/**", "/styles/**", "/VAADIN/**", "/access_denied").permitAll()
                         .requestMatchers("/admin_panel").access(new WebExpressionAuthorizationManager("hasRole('ADMIN')"))
                         .anyRequest().authenticated()
                 )

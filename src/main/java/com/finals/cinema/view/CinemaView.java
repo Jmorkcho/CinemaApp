@@ -25,7 +25,7 @@ public class CinemaView extends VerticalLayout {
                 "гр.София, Люлин 7, Бул \"Царица Йоанна\" 15, търговски център West Mall, етаж 2",
                 "02 4047 141",
                 "/img/west-mall.png",
-                "cinemas/west-mall"
+                "cinemas/west_mall"
         );
 
         CinemaCard theMallCard = new CinemaCard(
@@ -33,7 +33,7 @@ public class CinemaView extends VerticalLayout {
                 "гр. София, бул. Цариградско шосе 115, Търговски център The MALL",
                 "02 4047 121",
                 "/img/the-mall.png",
-                "cinemas/the-mall"
+                "cinemas/the_mall"
         );
 
         CinemaCard plovdivCard = new CinemaCard(
@@ -41,7 +41,7 @@ public class CinemaView extends VerticalLayout {
                 "гр. Пловдив, бул. Руски 54, Търговски център Мол Марково Тепе",
                 "02 4047 125",
                 "/img/plovdiv.png",
-                "cinemas/plovdiv"
+                "cinemas/plovdiv_mall"
         );
 
         HorizontalLayout cinemaRow = new HorizontalLayout(westMallCard, theMallCard, plovdivCard);
