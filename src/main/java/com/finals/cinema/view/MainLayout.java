@@ -5,6 +5,7 @@ import com.finals.cinema.configuration.EmailService;
 import com.finals.cinema.model.repository.ConfirmationTokenRepository;
 import com.finals.cinema.service.MovieService;
 import com.finals.cinema.service.UserService;
+import com.finals.cinema.util.Constants;
 import com.vaadin.flow.component.ClientCallable;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.applayout.AppLayout;
@@ -23,12 +24,12 @@ import com.vaadin.flow.router.HighlightConditions;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouterLink;
 import com.vaadin.flow.theme.lumo.Lumo;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import static com.finals.cinema.util.Constants.*;
-
 
 public class MainLayout extends AppLayout {
 
@@ -36,7 +37,7 @@ public class MainLayout extends AppLayout {
     public MainLayout(UserService userService, MovieService movieService,
                       ConfirmationTokenRepository confirmationTokenRepository, EmailService emailService) {
         createHeader(userService, movieService, confirmationTokenRepository, emailService);
-        createDrawer();
+        createDrawer(userService);
         UI ui = UI.getCurrent();
         ui.getPage().executeJs(
                 "const dark = localStorage.getItem('darkTheme') === 'true';" +
@@ -116,17 +117,23 @@ public class MainLayout extends AppLayout {
 
     }
 
-    private void createDrawer() {
-        RouterLink listLink = new RouterLink("Newest Films", CinemaView.class);
-        listLink.setHighlightCondition(HighlightConditions.sameLocation());
-
-        addToDrawer(new VerticalLayout(
-
+    private void createDrawer(UserService userService) {
+        VerticalLayout drawerLayout = new VerticalLayout(
                 new RouterLink("Buy Tickets", TicketView.class),
                 new RouterLink("Cinemas", CinemaView.class),
                 new RouterLink("Projections", ProjectionView.class)
-//                new RouterLink("WhatIsOn", WhatIsOn.class)
-        ));
+        );
+
+        // Get current user's role from the service
+        int currentUserRole = userService.getCurrentUserRole();
+
+        if (currentUserRole == Constants.ROLE_ADMIN) { // Check if admin
+            RouterLink adminLink = new RouterLink("Admin Panel", AdminView.class);
+            adminLink.setHighlightCondition(HighlightConditions.sameLocation());
+            drawerLayout.add(adminLink);
+        }
+
+        addToDrawer(drawerLayout);
     }
 
     private void openLoginDialog(UserService userService, ConfirmationTokenRepository confirmationTokenRepository, EmailService emailService) {
