@@ -13,6 +13,7 @@ import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.textfield.PasswordField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.theme.lumo.Lumo;
@@ -78,12 +79,17 @@ public class LoginForm extends FormLayout{
             registrationDialog.setCloseOnEsc(true);
             registrationDialog.setCloseOnOutsideClick(true);
 
-            RegistrationForm registrationForm = new RegistrationForm(userService, confirmationTokenRepository, emailService, registrationDialog);
-            registrationDialog.add(registrationForm);
+            Button closeButton = new Button("✖", event -> registrationDialog.close());
+            closeButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY_INLINE);
+            closeButton.getStyle()
+                    .set("position", "absolute")
+                    .set("top", "0.5rem")
+                    .set("right", "0.5rem")
+                    .set("width", "21.9667px")
+                    .set("height", "26px");
 
-            // Optionally, you can add a close button
-            Button closeButton = new Button("Close", event -> registrationDialog.close());
-            registrationDialog.add(closeButton);
+            RegistrationForm registrationForm = new RegistrationForm(userService, confirmationTokenRepository, emailService, registrationDialog);
+            registrationDialog.add(closeButton, registrationForm);
 
             registrationDialog.open();
         }

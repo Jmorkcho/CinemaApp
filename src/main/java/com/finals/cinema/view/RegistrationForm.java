@@ -14,12 +14,15 @@ import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
+import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.textfield.EmailField;
 import com.vaadin.flow.component.textfield.PasswordField;
 import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.theme.lumo.LumoUtility;
 import org.springframework.mail.SimpleMailMessage;
 
 import java.time.LocalDate;
@@ -32,7 +35,7 @@ import static com.finals.cinema.util.Constants.MAIN_VIEW_ROUTE;
 
 public class RegistrationForm extends FormLayout {
 
-    private H3 title;
+    private H1 title;
 
     private TextField firstName;
     private TextField lastName;
@@ -58,8 +61,9 @@ public class RegistrationForm extends FormLayout {
                             EmailService emailService, Dialog registrationDialog) {
 
         this.registrationDialog=registrationDialog;
+        getStyle().set("position", "relative");
 
-        title = new H3("Signup form");
+        title = new H1("Signup form");
         firstName = new TextField("First name");
         lastName = new TextField("Last name");
         username = new TextField("Username");
