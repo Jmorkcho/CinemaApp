@@ -1,5 +1,6 @@
 package com.finals.cinema.security;
 
+import com.finals.cinema.view.LoginView;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -17,14 +18,7 @@ public class SecurityConfig {
                         .requestMatchers("/", "/signin", "/register", "cinemas", "/main", "/images/**", "/styles/**", "/VAADIN/**").permitAll()
                         .anyRequest().authenticated()
                 )
-                .csrf(csrf -> csrf.disable())
-                .formLogin(form -> form
-                        .loginPage("/signin")
-                        .permitAll()
-                )
-                .logout(logout -> logout
-                        .logoutSuccessUrl("/signin")
-                        .permitAll()
+                .csrf(csrf -> csrf.disable()
                 )
                 .securityContext(context -> context
                         .requireExplicitSave(false)
