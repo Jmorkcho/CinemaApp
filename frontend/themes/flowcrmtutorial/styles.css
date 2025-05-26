@@ -14,3 +14,31 @@ a[highlight] {
 .status-list-view {
   background-image: url("images/spider.jpg");
 }
+
+/*.cinema-card:hover {
+  background-color: rgba(255, 255, 255, 0.15);
+  transform: scale(1.03);
+}*/
+
+
+
+/* Light theme variables */
+[theme~="light"] {
+    --lumo-base-color: #f5f5f0; /* Elephant bone color */
+    --lumo-shade-5pct: rgba(33, 33, 33, 0.05);
+    --lumo-shade-10pct: rgba(33, 33, 33, 0.1);
+    --lumo-shade-20pct: rgba(33, 33, 33, 0.2);
+}
+
+/* Cinema card styling for both themes */
+.cinema-card {
+    border: 1px solid var(--lumo-contrast-10pct);
+    box-shadow: 0 2px 4px var(--lumo-shade-10pct);
+}
+
+/* Hover effect for cinema cards */
+.cinema-card:hover {
+    border-color: var(--lumo-primary-color-50pct);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px var(--lumo-shade-20pct);
+}
