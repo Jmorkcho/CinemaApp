@@ -16,6 +16,8 @@ public class AbstractService {
     @Autowired
     protected UserRepository userRepository;
     @Autowired
+    protected UserRepository confirmationTokenRepository;
+    @Autowired
     protected CinemaRepository cinemaRepository;
     @Autowired
     protected HallRepository hallRepository;
