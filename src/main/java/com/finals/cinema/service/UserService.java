@@ -10,6 +10,7 @@ import com.finals.cinema.model.DTO.UserWithoutTicketAndPassDTO;
 import com.finals.cinema.model.entity.ConfirmationToken;
 import com.finals.cinema.model.entity.User;
 import com.finals.cinema.model.repository.ConfirmationTokenRepository;
+import com.finals.cinema.util.exceptions.UnauthorizedException;
 import com.finals.cinema.view.*;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
@@ -139,6 +140,36 @@ public class UserService extends AbstractService {
 
     }
 
+    public void deleteUser(int userId) throws UnauthorizedException{
+        if (!isAdmin(userId)) {
+            throw new UnauthorizedException("Only admins can remove movies");
+        }
+        userRepository.deleteById(userId);
+    }
+
+    public void changeUserRole(int userId, int roleId) {
+        User user = userRepository.findById(userId).orElseThrow();
+        user.setRoleId(roleId);
+        userRepository.save(user);
+    }
+
+
+    public int getCurrentUserRole() {
+        // First try to get from VaadinSession
+        User currentUser = VaadinSession.getCurrent().getAttribute(User.class);
+        if (currentUser != null) {
+            return currentUser.getRoleId();
+        }
+
+        // Fall back to Spring Security context
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.getPrincipal() instanceof User) {
+            return ((User) authentication.getPrincipal()).getRoleId();
+        }
+
+        // If neither is available, return default role (user) or throw exception
+        return Constants.ROLE_USER; // or throw new UnauthorizedException("User not logged in");
+    }
 
     public List<AuthorizedRoute> getAuthorizedRoutes(int role) {
         var routes = new ArrayList<AuthorizedRoute>();
