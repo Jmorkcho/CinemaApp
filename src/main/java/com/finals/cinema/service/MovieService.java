@@ -48,9 +48,9 @@ public class MovieService extends com.finals.cinema.service.AbstractService {
     }
 
     public ResponseMovieDTO addMovie(AddMovieDTO addMovieDTO, int userId) throws Exception, UnauthorizedException {
-//        if (!isAdmin(userId)) {
-//            throw new UnauthorizedException("Only admins can add movies");
-//        }
+        if (!isAdmin(userId)) {
+            throw new UnauthorizedException("Only admins can add movies");
+        }
         Movie sMovie = movieRepository.findByTitle(addMovieDTO.getTitle());
         if (sMovie != null) {
             throw new BadRequestException("There is already a movie with that title");
