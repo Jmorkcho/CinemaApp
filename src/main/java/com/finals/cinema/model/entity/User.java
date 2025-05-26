@@ -41,6 +41,9 @@ public class User {
     private List<Ticket> tickets;
     private boolean isEnabled;
 
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private ConfirmationToken confirmationToken;
+
     // Method to get authorities based on roleId
     public Collection<? extends GrantedAuthority> getAuthorities() {
         Collection<GrantedAuthority> authorities = new ArrayList<>();
