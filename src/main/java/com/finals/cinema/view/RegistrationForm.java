@@ -23,11 +23,16 @@ import com.vaadin.flow.component.textfield.EmailField;
 import com.vaadin.flow.component.textfield.PasswordField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.theme.lumo.LumoUtility;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.ConstraintViolationException;
+import jakarta.validation.Validation;
+import jakarta.validation.Validator;
 import org.springframework.mail.SimpleMailMessage;
 
 import java.time.LocalDate;
 import java.time.Period;
 import java.util.Locale;
+import java.util.Set;
 import java.util.stream.Stream;
 
 import static com.finals.cinema.util.Constants.MAIN_VIEW_ROUTE;
@@ -88,17 +93,14 @@ public class RegistrationForm extends FormLayout {
         submitButton = new Button("Register", event ->
         {
             try {
-                if (!firstName.getValue().isBlank() && !lastName.getValue().isBlank() &&
-                        !username.getValue().isBlank() && !email.getValue().isBlank() && !password.getValue().isBlank() &&
-                        !passwordConfirm.getValue().isBlank() && !status.getValue().isBlank() && datePicker.getValue() != null) {
+
                     UserWithoutPassDTO register = register(userService);
                     sendConfirmationTokenJD(confirmationTokenRepository, register, emailService);
 //                    UI.getCurrent().navigate(CONFIRMATION_VIEW_ROUTE);
+                    //TODO
+                    //popup on register event
                     UI.getCurrent().navigate(MAIN_VIEW_ROUTE);
                     registrationDialog.close();
-                } else {
-                    throw new BadRequestException("Please fill all the necessary fields");
-                }
             } catch (BadRequestException e) {
                 Notification.show(e.getMessage(), -1, Notification.Position.BOTTOM_CENTER);
             }
@@ -151,6 +153,11 @@ public class RegistrationForm extends FormLayout {
                 .age(age)
                 .build();
 
+        Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
+        Set<ConstraintViolation<RegisterDTO>> violations = validator.validate(registerDTO);
+        if (!violations.isEmpty()) {
+            throw new ConstraintViolationException(violations);
+        }
         UserWithoutPassDTO register = userService.registerUser(registerDTO);
         return register;
 

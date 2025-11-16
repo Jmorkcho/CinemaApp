@@ -27,6 +27,18 @@ import static com.finals.cinema.util.Constants.*;
 @Service
 public class MovieService extends com.finals.cinema.service.AbstractService {
 
+    public List<ResponseMovieDTO> getAllMovies() {
+        List<Movie> movies = movieRepository.findAll();
+        List<ResponseMovieDTO> dtoList = new ArrayList<>();
+
+        for (Movie movie : movies) {
+            dtoList.add(new ResponseMovieDTO(movie));
+        }
+
+        return dtoList;
+    }
+
+
     public ResponseMovieDTO getMovieById(int movieId) {
         Optional<Movie> sMovie = movieRepository.findById(movieId);
         if (sMovie.isEmpty()) {

@@ -18,9 +18,10 @@ public class ResponseMovieDTO {
     private int length;
     private double rating;
     private int ageRestriction;
-    private String lead;
+    private String leadingActor;
     private Genre genre;
     private String poster;
+    private String imdb_id;
 
     public ResponseMovieDTO(Movie movie) {
         this.id = movie.getId();
@@ -30,8 +31,9 @@ public class ResponseMovieDTO {
         this.length = movie.getLength();
         this.rating = movie.getRating();
         this.ageRestriction = movie.getAgeRestriction();
-        this.lead = movie.getLeadingActor();
+        this.leadingActor = movie.getLeadingActor();
         this.genre = movie.getGenre();
         this.poster = movie.getPoster();
+        this.imdb_id = movie.getImdbId();
     }
 }

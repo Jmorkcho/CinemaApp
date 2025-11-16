@@ -1,6 +1,8 @@
 package com.finals.cinema.view;
 
 import com.finals.cinema.model.DTO.AddMovieDTO;
+import com.finals.cinema.model.DTO.ResponseMovieDTO;
+import com.finals.cinema.model.entity.Genre;
 import com.finals.cinema.model.entity.User;
 import com.finals.cinema.service.MovieService;
 import com.finals.cinema.service.UserService;
@@ -155,37 +157,176 @@ public class AdminView extends VerticalLayout implements BeforeEnterObserver {
     private VerticalLayout createMoviesContent() {
         VerticalLayout layout = new VerticalLayout();
 
-        // Add movie form
-        TextField titleField = new TextField("Title");
-        NumberField ageRestrictionField = new NumberField("Age Restriction");
-        NumberField genreIdField = new NumberField("Genre ID");
+        Grid<ResponseMovieDTO> movieGrid = new Grid<>(ResponseMovieDTO.class);
+        movieGrid.setColumns("id", "title", "year", "plot", "length", "rating", "ageRestriction", "leadingActor", "poster", "imdb_id");
 
-        Button addButton = new Button("Add Movie", e -> {
-            AddMovieDTO dto = AddMovieDTO.builder()
-                    .title(titleField.getValue())
-                    .ageRestriction(ageRestrictionField.getValue().intValue())
-                    .genreId(genreIdField.getValue().intValue())
-                    .build();
+        com.finals.cinema.view.forms.MovieForm form = new com.finals.cinema.view.forms.MovieForm();
+        form.setWidth("25em");
+        form.setVisible(false);
 
+        HorizontalLayout content = new HorizontalLayout(movieGrid, form);
+        content.setFlexGrow(2, movieGrid);
+        content.setFlexGrow(1, form);
+        content.setSizeFull();
+
+        refreshMovieGrid(movieGrid);
+
+        Button addButton = new Button("Add");
+        Button deleteButton = new Button("Delete");
+
+        deleteButton.setEnabled(false);
+
+        movieGrid.asSingleSelect().addValueChangeListener(event -> {
+            ResponseMovieDTO selected = event.getValue();
+            deleteButton.setEnabled(selected != null);
+
+            if (selected != null) {
+                form.setMovie(
+                        AddMovieDTO.builder()
+                                .title(selected.getTitle())
+                                .ageRestriction(selected.getAgeRestriction())
+                                .genreId(selected.getGenre().getId())
+                                .build()
+                );
+                form.setVisible(true);
+            } else {
+                form.setVisible(false);
+            }
+        });
+
+        addButton.addClickListener(e -> {
+            movieGrid.asSingleSelect().clear();
+            form.setMovie(AddMovieDTO.builder().build());
+            form.setVisible(true);
+        });
+
+        deleteButton.addClickListener(e -> {
+            ResponseMovieDTO selected = movieGrid.asSingleSelect().getValue();
+            if (selected != null) {
+                try {
+                    movieService.deleteMovie(selected.getId(), 2);
+                    refreshMovieGrid(movieGrid);
+                    form.setVisible(false);
+                } catch (Exception | UnauthorizedException ex) {
+                    ex.printStackTrace();
+                }
+            }
+        });
+
+        form.addListener(com.finals.cinema.view.forms.MovieForm.SaveEvent.class, e -> {
             try {
-                movieService.addMovie(dto, 2); // Assuming 2 is admin role
-                // Refresh movie list
-            } catch (UnauthorizedException ex) {
-                ex.printStackTrace();
-                // Show error notification
+                AddMovieDTO movie = form.getMovieData();
+                movieService.addMovie(movie, 2);
+                refreshMovieGrid(movieGrid);
+                form.setVisible(false);
             } catch (Exception ex) {
+                ex.printStackTrace();
+            } catch (UnauthorizedException ex) {
                 ex.printStackTrace();
             }
         });
 
-        // Movie grid (you'll need to create a Movie DTO and service method)
-        // Grid<Movie> movieGrid = new Grid<>(Movie.class);
-        // movieGrid.setItems(movieService.getAllMovies());
+        form.addListener(com.finals.cinema.view.forms.MovieForm.DeleteEvent.class, e -> {
+            ResponseMovieDTO selected = movieGrid.asSingleSelect().getValue();
+            if (selected != null) {
+                try {
+                    movieService.deleteMovie(selected.getId(), 2);
+                    refreshMovieGrid(movieGrid);
+                    form.setVisible(false);
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                } catch (UnauthorizedException ex) {
+                    ex.printStackTrace();
+                }
+            }
+        });
 
-        layout.add(new FormLayout(titleField, ageRestrictionField, genreIdField),
-                addButton/*, movieGrid*/);
+        form.addListener(com.finals.cinema.view.forms.MovieForm.CloseEvent.class, e -> form.setVisible(false));
+
+        HorizontalLayout buttonLayout = new HorizontalLayout(addButton, deleteButton);
+        layout.add(content, buttonLayout);
         return layout;
     }
+
+
+
+    private void refreshMovieGrid(Grid<ResponseMovieDTO> grid) {
+        grid.setItems(movieService.getAllMovies());
+    }
+
+    private void showMovieDialog(ResponseMovieDTO movie, Grid<ResponseMovieDTO> movieGrid) {
+        Dialog dialog = new Dialog();
+        dialog.setHeaderTitle(movie == null ? "Add Movie" : "Edit Movie");
+
+        TextField title = new TextField("Title");
+        NumberField ageRestriction = new NumberField("Age Restriction");
+        NumberField genreId = new NumberField("Genre ID");
+
+        if (movie != null) {
+            title.setValue(movie.getTitle());
+            ageRestriction.setValue((double) movie.getAgeRestriction());
+            genreId.setValue((double) movie.getGenre().getId());
+        }
+
+        Button save = new Button("Save", event -> {
+            try {
+                AddMovieDTO dto = AddMovieDTO.builder()
+                        .title(title.getValue())
+                        .ageRestriction(ageRestriction.getValue().intValue())
+                        .genreId(genreId.getValue().intValue())
+                        .build();
+
+                if (movie == null) {
+                    movieService.addMovie(dto, 2); // Assume admin
+                } else {
+                    movieService.deleteMovie(movie.getId(), 2);
+                    movieService.addMovie(dto, 2);
+                }
+
+                refreshMovieGrid(movieGrid);
+                dialog.close();
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            } catch (UnauthorizedException e) {
+                e.printStackTrace();
+            }
+        });
+
+        Button cancel = new Button("Cancel", e -> dialog.close());
+        cancel.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+
+        dialog.add(new FormLayout(title, ageRestriction, genreId),
+                new HorizontalLayout(save, cancel));
+        dialog.open();
+    }
+
+
+    private void showMovieDeleteDialog(ResponseMovieDTO movie, Grid<ResponseMovieDTO> movieGrid) {
+        Dialog dialog = new Dialog();
+        dialog.setHeaderTitle("Confirm Delete");
+
+        Paragraph warning = new Paragraph("Delete movie '" + movie.getTitle() + "'? This cannot be undone.");
+
+        Button confirm = new Button("Delete", e -> {
+            try {
+                movieService.deleteMovie(movie.getId(), 2); // admin id
+                refreshMovieGrid(movieGrid);
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            } catch (UnauthorizedException ex) {
+                ex.printStackTrace();
+            }
+            dialog.close();
+        });
+        confirm.addThemeVariants(ButtonVariant.LUMO_ERROR);
+
+        Button cancel = new Button("Cancel", e -> dialog.close());
+        cancel.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+
+        dialog.add(warning, new HorizontalLayout(confirm, cancel));
+        dialog.open();
+    }
+
 
     private VerticalLayout createProjectionsContent() {
         VerticalLayout layout = new VerticalLayout();

@@ -9,10 +9,12 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.stereotype.Component;
 
 
 import static com.finals.cinema.util.Constants.REGISTRATION_VIEW_ROUTE;
 
+@Component
 @Route(value = REGISTRATION_VIEW_ROUTE)
 @AnonymousAllowed
 @ComponentScan(basePackages = { "com.finals.cinema" })

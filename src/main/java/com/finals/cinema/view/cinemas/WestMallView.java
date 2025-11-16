@@ -8,11 +8,9 @@ import com.vaadin.flow.component.html.*;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 
-import static com.finals.cinema.util.Constants.MAIN_VIEW_ROUTE;
-
 @Route(value = "cinemas/west_mall", layout = MainLayout.class)
 @PageTitle("Кино Арена West Mall")
-public class WestMallView extends com.finals.cinema.view.AbstractCinemaView {
+public class WestMallView extends AbstractCinemaView {
     public WestMallView() {
         addHeader();
         initializeTabs();

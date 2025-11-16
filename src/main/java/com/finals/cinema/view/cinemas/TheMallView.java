@@ -10,7 +10,7 @@ import com.vaadin.flow.router.Route;
 
 @Route(value = "cinemas/the_mall", layout = MainLayout.class)
 @PageTitle("Кино Арена The Mall")
-public class TheMallView extends com.finals.cinema.view.AbstractCinemaView {
+public class TheMallView extends AbstractCinemaView {
     public TheMallView() {
         addHeader();
         initializeTabs();

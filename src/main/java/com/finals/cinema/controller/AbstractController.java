@@ -6,15 +6,18 @@ import com.finals.cinema.util.exceptions.BadRequestException;
 import com.finals.cinema.util.exceptions.NotFoundException;
 import com.finals.cinema.util.exceptions.UnauthorizedException;
 import com.finals.cinema.model.DTO.ErrorDTO;
+import jakarta.validation.ConstraintViolationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.io.FileNotFoundException;
 import java.time.DateTimeException;
 
+@RestControllerAdvice
 public class AbstractController {
 
     @Autowired
@@ -23,6 +26,12 @@ public class AbstractController {
     @ExceptionHandler(BadRequestException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorDTO handleUserBadCredentialsException(BadRequestException e) {
+        return new ErrorDTO(e.getMessage());
+    }
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorDTO handleConstraintViolationException(ConstraintViolationException e) {
         return new ErrorDTO(e.getMessage());
     }
 

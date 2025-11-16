@@ -1,5 +1,6 @@
 package com.finals.cinema.view.cinemas;
 
+import com.finals.cinema.view.cinemas.AbstractCinemaView;
 import com.finals.cinema.view.MainLayout;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
@@ -10,7 +11,7 @@ import com.vaadin.flow.router.Route;
 
 @Route(value = "cinemas/plovdiv_mall", layout = MainLayout.class)
 @PageTitle("Кино Арена Мол Марково тепе")
-public class PlovdivMallView extends com.finals.cinema.view.AbstractCinemaView {
+public class PlovdivMallView extends AbstractCinemaView {
     public PlovdivMallView() {
         addHeader();
         initializeTabs();

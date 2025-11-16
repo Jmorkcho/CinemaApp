@@ -1,4 +1,4 @@
-package com.finals.cinema.view;
+package com.finals.cinema.view.cinemas;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.html.*;
