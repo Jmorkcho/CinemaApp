@@ -75,7 +75,7 @@ public class MainView extends VerticalLayout {
             Span title = new Span(movie.getTitle());
             card.add(title);
 
-            card.addClickListener(e -> getUI().ifPresent(ui -> ui.navigate("x123abc/" + movie.getId())));
+            card.addClickListener(e -> getUI().ifPresent(ui -> ui.navigate("movie-details/" + movie.getId())));
 
             movieGrid.add(card);
         }
