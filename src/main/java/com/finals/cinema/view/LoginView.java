@@ -1,8 +1,6 @@
 package com.finals.cinema.view;
 
 import com.finals.cinema.configuration.EmailService;
-import com.finals.cinema.model.DTO.UserWithoutTicketAndPassDTO;
-import com.finals.cinema.model.entity.User;
 import com.finals.cinema.model.repository.ConfirmationTokenRepository;
 import com.finals.cinema.service.UserService;
 import com.finals.cinema.util.exceptions.BadRequestException;
@@ -14,15 +12,11 @@ import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.H1;
-import com.vaadin.flow.component.html.Span;
-import com.vaadin.flow.component.login.LoginForm;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.PasswordField;
 import com.vaadin.flow.component.textfield.TextField;
-import com.vaadin.flow.dom.ThemeList;
 import com.vaadin.flow.router.*;
-import com.vaadin.flow.server.VaadinSession;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 import com.vaadin.flow.theme.lumo.Lumo;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;

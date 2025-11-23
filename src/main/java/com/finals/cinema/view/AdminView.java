@@ -2,7 +2,6 @@ package com.finals.cinema.view;
 
 import com.finals.cinema.model.DTO.AddMovieDTO;
 import com.finals.cinema.model.DTO.ResponseMovieDTO;
-import com.finals.cinema.model.entity.Genre;
 import com.finals.cinema.model.entity.User;
 import com.finals.cinema.service.MovieService;
 import com.finals.cinema.service.UserService;

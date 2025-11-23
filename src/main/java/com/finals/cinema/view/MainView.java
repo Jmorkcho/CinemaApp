@@ -32,7 +32,7 @@ public class MainView extends VerticalLayout {
 
     public MainView(MovieRepository movieRepository) {
         System.out.println("MainView loaded");
-        addClassName("status-list-view");
+        // addClassName("status-list-view");
         setSizeFull();
         configureGrid(movieRepository);
         // add(getContent(movieRepository));
@@ -85,8 +85,8 @@ public class MainView extends VerticalLayout {
     private void configureGrid(MovieRepository movieRepository) {
         List<Movie> movies = movieRepository.findAll();
         cinemaGrid.addColumn(i -> i).setHeader("Num");
-        Image image = new Image("/images/spider.jpg", "alt message");
-        cinemaGrid.addComponentColumn(i -> image).setHeader("images");
+        /// Image image = new Image("/images/spider.jpg", "alt message");
+        // cinemaGrid.addComponentColumn(i -> image).setHeader("images");
         cinemaGrid.setItems(movies);
 
         cinemaGrid.setSizeFull();
