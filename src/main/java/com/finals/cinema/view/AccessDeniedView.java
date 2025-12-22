@@ -24,7 +24,7 @@ public class AccessDeniedView extends VerticalLayout {
         add(
                 new H1("403 - Access Denied"),
                 new Paragraph("You don't have permission to access this page."),
-                new Button("Return to Home", e -> {
+                new Button("Return to Main", e -> {
                     UI.getCurrent().navigate(MainView.class);
                 })
         );

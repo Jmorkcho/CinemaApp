@@ -1,9 +1,8 @@
 package com.finals.cinema.view;
 
-import com.finals.cinema.configuration.EmailService;
-import com.finals.cinema.model.repository.ConfirmationTokenRepository;
+import com.finals.cinema.service.EmailService;
+import com.finals.cinema.repository.ConfirmationTokenRepository;
 import com.finals.cinema.service.UserService;
-import com.finals.cinema.util.exceptions.BadRequestException;
 import com.vaadin.flow.component.ClientCallable;
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.UI;
@@ -13,7 +12,6 @@ import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.notification.Notification;
-import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.textfield.PasswordField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.theme.lumo.Lumo;
@@ -45,9 +43,9 @@ public class LoginForm extends FormLayout{
                     }
                     else
                     {
-                        throw new BadRequestException("Please fill all the necessary fields");
+                        throw new IllegalArgumentException("Please fill all the necessary fields");
                     }
-                } catch (BadRequestException e) {
+                } catch (Exception e) {
                     Notification.show(e.getMessage(), 2500, Notification.Position.BOTTOM_CENTER);
                 }
             });
@@ -65,8 +63,8 @@ public class LoginForm extends FormLayout{
             formLayout.setColspan(openRegistrationButton, 1);
         }
 
-        private void login(UserService userService, TextField username, PasswordField password) throws BadRequestException {
-            userService.logInUser(username.getValue(), password.getValue());
+        private void login(UserService userService, TextField username, PasswordField password) {
+            userService.logIn(username.getValue(), password.getValue());
             loginDialog.close();
             //UI.getCurrent().getPage().reload();
             UI.getCurrent().navigate("dummy");

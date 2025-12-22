@@ -1,15 +1,12 @@
 package com.finals.cinema.model.entity;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.*;
 
 import jakarta.persistence.*;
-import java.util.List;
 
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
+import java.math.BigDecimal;
+
+
 @Getter
 @Setter
 @Entity
@@ -18,21 +15,36 @@ public class Movie {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private Integer id;
+
+    @Column(name = "title")
     private String title;
+
+    @Column(name = "year")
     private String year;
+
+    @Column(name = "plot")
     private String plot;
+
+    @Column(name = "length")
     private int length;
-    private double rating;
+
+    @Column(name = "rating")
+    private BigDecimal rating;
+
+    @Column(name = "age_restriction")
     private int ageRestriction;
+
+    @Column(name = "leading_actor")
     private String leadingActor;
+
     @ManyToOne
     @JoinColumn(name = "genre_id")
-    @JsonBackReference
     private Genre genre;
+
+    @Column(name = "poster")
     private String poster;
+
+    @Column(name = "imdb_id")
     private String imdbId;
-    @OneToMany(mappedBy = "movie")
-    @JsonManagedReference
-    private List<Projection> projections;
 }

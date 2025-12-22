@@ -24,8 +24,5 @@ public class CinemaApplication implements AppShellConfigurator {
     public static void main(String[] args) throws SQLException {
         
         SpringApplication.run(CinemaApplication.class, args);
-        //Thread cleaner = new Thread(new OldProjectionsCleaner());
-        //cleaner.setDaemon(true);
-        //cleaner.start();
     }
 }

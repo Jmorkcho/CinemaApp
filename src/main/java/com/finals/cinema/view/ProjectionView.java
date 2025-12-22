@@ -1,7 +1,7 @@
 package com.finals.cinema.view;
 
 import com.finals.cinema.model.entity.Projection;
-import com.finals.cinema.model.repository.ProjectionRepository;
+import com.finals.cinema.repository.ProjectionRepository;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;

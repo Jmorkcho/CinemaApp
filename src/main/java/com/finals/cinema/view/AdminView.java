@@ -1,14 +1,18 @@
 package com.finals.cinema.view;
 
 import com.finals.cinema.model.DTO.AddMovieDTO;
+import com.finals.cinema.model.DTO.MovieDTO;
 import com.finals.cinema.model.DTO.ResponseMovieDTO;
 import com.finals.cinema.model.entity.Genre;
 import com.finals.cinema.model.entity.User;
+import com.finals.cinema.model.entity.UserRole;
+import com.finals.cinema.service.GenreService;
 import com.finals.cinema.service.MovieService;
 import com.finals.cinema.service.UserService;
-import com.finals.cinema.util.exceptions.UnauthorizedException;
+import com.finals.cinema.view.forms.MovieForm;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.grid.Grid;
@@ -24,32 +28,26 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.Route;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.annotation.Secured;
 
-import static com.finals.cinema.util.Constants.ROLE_ADMIN;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 
 @Secured("ROLE_ADMIN")
 @Route(value = "admin_panel", layout = MainLayout.class)
+@Slf4j
 public class AdminView extends VerticalLayout implements BeforeEnterObserver {
-
-    @Override
-    public void beforeEnter(BeforeEnterEvent event) {
-        try {
-            if (userService.getCurrentUserRole() != ROLE_ADMIN) {
-                event.forwardTo(AccessDeniedView.class);
-            }
-        } catch (Exception e) {
-            event.forwardTo(AccessDeniedView.class);
-        }
-    }
 
     private final MovieService movieService;
     private final UserService userService;
+    private final GenreService genreService;
 
-    public AdminView(MovieService movieService, UserService userService) {
+    public AdminView(MovieService movieService, UserService userService, GenreService genreService) {
         this.movieService = movieService;
         this.userService = userService;
+        this.genreService = genreService;
 
         setSizeFull();
         setPadding(true);
@@ -87,12 +85,13 @@ public class AdminView extends VerticalLayout implements BeforeEnterObserver {
         // User grid
         Grid<User> userGrid = new Grid<>(User.class);
         userGrid.setItems(userService.findAll());
-        userGrid.setColumns("username", "email", "firstName", "lastName", "roleId");
-        userGrid.getColumnByKey("roleId").setHeader("Role");
+        userGrid.setColumns("username", "email", "firstName", "lastName", "role");
+        userGrid.getColumnByKey("role").setHeader("Role");
 
         // Delete button with confirmation dialog
-        Button deleteButton = new Button("Delete", e -> {
+        Button deleteUserButton = new Button("Delete", e -> {
             User selected = userGrid.asSingleSelect().getValue();
+            //check if admin todo
             if (selected != null) {
                 showDeleteConfirmationDialog(selected, userGrid);
             }
@@ -101,12 +100,12 @@ public class AdminView extends VerticalLayout implements BeforeEnterObserver {
         Button makeAdminButton = new Button("Make Admin", e -> {
             User selected = userGrid.asSingleSelect().getValue();
             if (selected != null) {
-                userService.changeUserRole(selected.getId(), 2);
+                userService.changeUserRole(selected.getId(), UserRole.ADMIN);
                 userGrid.setItems(userService.findAll());
             }
         });
 
-        layout.add(userGrid, new HorizontalLayout(deleteButton, makeAdminButton));
+        layout.add(userGrid, new HorizontalLayout(deleteUserButton, makeAdminButton));
         return layout;
     }
 
@@ -123,8 +122,8 @@ public class AdminView extends VerticalLayout implements BeforeEnterObserver {
             if ("delete forever".equalsIgnoreCase(confirmationField.getValue())) {
                 try {
                     userService.deleteUser(user.getId());
-                } catch (UnauthorizedException e) {
-                    e.printStackTrace();
+                } catch (Exception e) {
+                    log.error("Could not delete user");
                 }
                 userGrid.setItems(userService.findAll());
                 dialog.close();
@@ -158,9 +157,9 @@ public class AdminView extends VerticalLayout implements BeforeEnterObserver {
         VerticalLayout layout = new VerticalLayout();
 
         Grid<ResponseMovieDTO> movieGrid = new Grid<>(ResponseMovieDTO.class);
-        movieGrid.setColumns("id", "title", "year", "plot", "length", "rating", "ageRestriction", "leadingActor", "poster", "imdb_id");
+        movieGrid.setColumns("id", "title", "year", "genreName", "plot", "length", "rating", "ageRestriction", "leadingActor", "poster", "imdbId");
 
-        com.finals.cinema.view.forms.MovieForm form = new com.finals.cinema.view.forms.MovieForm();
+       MovieForm form = new MovieForm(genreService);
         form.setWidth("25em");
         form.setVisible(false);
 
@@ -171,79 +170,75 @@ public class AdminView extends VerticalLayout implements BeforeEnterObserver {
 
         refreshMovieGrid(movieGrid);
 
-        Button addButton = new Button("Add");
-        Button deleteButton = new Button("Delete");
+        Button addMovieButton = new Button("Add");
+        Button deleteMovieButton = new Button("Delete");
 
-        deleteButton.setEnabled(false);
+        deleteMovieButton.setEnabled(false);
 
         movieGrid.asSingleSelect().addValueChangeListener(event -> {
             ResponseMovieDTO selected = event.getValue();
-            deleteButton.setEnabled(selected != null);
 
             if (selected != null) {
-                form.setMovie(
-                        AddMovieDTO.builder()
-                                .title(selected.getTitle())
-                                .ageRestriction(selected.getAgeRestriction())
-                                .genreId(selected.getGenre().getId())
-                                .build()
-                );
-                form.setVisible(true);
+                MovieDTO movie = MovieDTO.builder()
+                  .title(selected.getTitle())
+                  .ageRestriction(selected.getAgeRestriction())
+                  .genre(selected.getGenre().getType())
+                  .build();
+                form.setMovie(movie);
+            deleteMovieButton.setEnabled(true);
+            form.setVisible(true);
             } else {
                 form.setVisible(false);
             }
         });
 
-        addButton.addClickListener(e -> {
+        addMovieButton.addClickListener(e -> {
             movieGrid.asSingleSelect().clear();
-            form.setMovie(AddMovieDTO.builder().build());
+            form.setMovie(MovieDTO.builder().build());
             form.setVisible(true);
         });
 
-        deleteButton.addClickListener(e -> {
-            ResponseMovieDTO selected = movieGrid.asSingleSelect().getValue();
-            if (selected != null) {
+        deleteMovieButton.addClickListener(event -> {
+            ResponseMovieDTO selectedMovie = movieGrid.asSingleSelect().getValue();
+            if (selectedMovie != null) {
                 try {
-                    movieService.deleteMovie(selected.getId(), 2);
-                    refreshMovieGrid(movieGrid);
-                    form.setVisible(false);
-                } catch (Exception | UnauthorizedException ex) {
-                    ex.printStackTrace();
-                }
-            }
-        });
-
-        form.addListener(com.finals.cinema.view.forms.MovieForm.SaveEvent.class, e -> {
-            try {
-                AddMovieDTO movie = form.getMovieData();
-                movieService.addMovie(movie, 2);
-                refreshMovieGrid(movieGrid);
-                form.setVisible(false);
-            } catch (Exception ex) {
-                ex.printStackTrace();
-            } catch (UnauthorizedException ex) {
-                ex.printStackTrace();
-            }
-        });
-
-        form.addListener(com.finals.cinema.view.forms.MovieForm.DeleteEvent.class, e -> {
-            ResponseMovieDTO selected = movieGrid.asSingleSelect().getValue();
-            if (selected != null) {
-                try {
-                    movieService.deleteMovie(selected.getId(), 2);
+                    movieService.deleteMovie(selectedMovie.getId());
                     refreshMovieGrid(movieGrid);
                     form.setVisible(false);
                 } catch (Exception ex) {
-                    ex.printStackTrace();
-                } catch (UnauthorizedException ex) {
-                    ex.printStackTrace();
+                    log.error("Could not delete movie", ex);
                 }
             }
         });
 
-        form.addListener(com.finals.cinema.view.forms.MovieForm.CloseEvent.class, e -> form.setVisible(false));
+        form.addListener(MovieForm.SaveEvent.class, event -> {
+            try {
+                AddMovieDTO movie = form.getMovieData();
+                // todo change to edit movie
+                movieService.addMovie(movie);
+                refreshMovieGrid(movieGrid);
+                form.setVisible(false);
+            } catch (Exception ex) {
+                log.error("Could not add movie", ex);
+            }
+        });
 
-        HorizontalLayout buttonLayout = new HorizontalLayout(addButton, deleteButton);
+        form.addListener(MovieForm.DeleteEvent.class, event -> {
+            ResponseMovieDTO selectedMovie = movieGrid.asSingleSelect().getValue();
+            if (selectedMovie != null) {
+                try {
+                    movieService.deleteMovie(selectedMovie.getId());
+                    refreshMovieGrid(movieGrid);
+                    form.setVisible(false);
+                } catch (Exception ex) {
+                    log.error("Could not delete movie", ex);
+                }
+            }
+        });
+
+        form.addListener(MovieForm.CloseEvent.class, e -> form.setVisible(false));
+
+        HorizontalLayout buttonLayout = new HorizontalLayout(addMovieButton, deleteMovieButton);
         layout.add(content, buttonLayout);
         return layout;
     }
@@ -260,42 +255,44 @@ public class AdminView extends VerticalLayout implements BeforeEnterObserver {
 
         TextField title = new TextField("Title");
         NumberField ageRestriction = new NumberField("Age Restriction");
-        NumberField genreId = new NumberField("Genre ID");
+        ComboBox<String> genre = new ComboBox<>("Genre");
 
         if (movie != null) {
             title.setValue(movie.getTitle());
             ageRestriction.setValue((double) movie.getAgeRestriction());
-            genreId.setValue((double) movie.getGenre().getId());
+            genre.setValue(movie.getGenre().getType());
         }
 
         Button save = new Button("Save", event -> {
             try {
+                Map<String, Genre> genreTypesToGenre = genreService.getAllGenres()
+                  .stream()
+                  .collect(Collectors.toMap(Genre::getType, item -> item));
+
                 AddMovieDTO dto = AddMovieDTO.builder()
                         .title(title.getValue())
                         .ageRestriction(ageRestriction.getValue().intValue())
-                        .genreId(genreId.getValue().intValue())
+                        .genre(genreTypesToGenre.get(genre.getValue()))
                         .build();
 
                 if (movie == null) {
-                    movieService.addMovie(dto, 2); // Assume admin
+                    movieService.addMovie(dto); // Assume admin
                 } else {
-                    movieService.deleteMovie(movie.getId(), 2);
-                    movieService.addMovie(dto, 2);
+                    movieService.deleteMovie(movie.getId());
+                    movieService.addMovie(dto);
                 }
 
                 refreshMovieGrid(movieGrid);
                 dialog.close();
             } catch (Exception ex) {
-                ex.printStackTrace();
-            } catch (UnauthorizedException e) {
-                e.printStackTrace();
+                log.error("Could not save movie", ex);
             }
         });
 
         Button cancel = new Button("Cancel", e -> dialog.close());
         cancel.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
 
-        dialog.add(new FormLayout(title, ageRestriction, genreId),
+        dialog.add(new FormLayout(title, ageRestriction, genre),
                 new HorizontalLayout(save, cancel));
         dialog.open();
     }
@@ -309,12 +306,10 @@ public class AdminView extends VerticalLayout implements BeforeEnterObserver {
 
         Button confirm = new Button("Delete", e -> {
             try {
-                movieService.deleteMovie(movie.getId(), 2); // admin id
+                movieService.deleteMovie(movie.getId()); // admin id
                 refreshMovieGrid(movieGrid);
             } catch (Exception ex) {
-                ex.printStackTrace();
-            } catch (UnauthorizedException ex) {
-                ex.printStackTrace();
+                log.error("Could not delete movie", ex);
             }
             dialog.close();
         });
@@ -333,5 +328,16 @@ public class AdminView extends VerticalLayout implements BeforeEnterObserver {
         // Similar to movies content
         // Add projection form and grid
         return layout;
+    }
+
+    @Override
+    public void beforeEnter(BeforeEnterEvent event) {
+        try {
+            if (UserRole.ADMIN != userService.getCurrentUserRole()) {
+                event.forwardTo(AccessDeniedView.class);
+            }
+        } catch (Exception e) {
+            event.forwardTo(AccessDeniedView.class);
+        }
     }
 }

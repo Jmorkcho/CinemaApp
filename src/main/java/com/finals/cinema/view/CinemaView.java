@@ -1,18 +1,10 @@
 package com.finals.cinema.view;
 
-import com.finals.cinema.model.entity.Cinema;
-import com.finals.cinema.model.repository.CinemaRepository;
-import com.finals.cinema.service.CinemaService;
+import com.finals.cinema.repository.CinemaRepository;
 import com.finals.cinema.view.components.CinemaCard;
-import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.Unit;
-import com.vaadin.flow.component.grid.Grid;
-import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
-
-import java.awt.*;
 
 import static com.finals.cinema.util.Constants.CINEMA_VIEW_ROUTE;
 

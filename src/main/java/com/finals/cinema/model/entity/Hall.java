@@ -1,7 +1,5 @@
 package com.finals.cinema.model.entity;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.finals.cinema.model.DTO.RequestHallDTO;
 import lombok.*;
 
@@ -11,24 +9,26 @@ import java.util.List;
 
 @Getter
 @Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
 @Entity
 @Table(name = "halls")
+@NoArgsConstructor
 public class Hall {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private Integer id;
+
+    @Column(name = "number")
     private int number;
+
+    @Column(name = "capacity")
     private int capacity;
-    @ManyToOne
+
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "cinema_id")
-    @JsonBackReference
     private Cinema cinema;
-    @OneToMany(mappedBy = "hall")
-    @JsonManagedReference(value = "hall-projection")
+
+    @OneToMany(mappedBy = "hall", fetch = FetchType.LAZY)
     private List<Projection> projections;
 
     public Hall(RequestHallDTO requestHallDTO) {

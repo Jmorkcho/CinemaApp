@@ -19,7 +19,7 @@ public class ResponseTicketDTO {
         id = ticket.getId();
         owner = new UserWithoutTicketAndPassDTO(ticket.getOwner());
         projection = new ResponseProjectionDTO(ticket.getProjection());
-        seat = ticket.getSeat();
+//        seat = ticket.getSeat();
 
     }
 }

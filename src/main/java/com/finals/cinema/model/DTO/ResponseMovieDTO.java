@@ -6,6 +6,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.math.BigDecimal;
+
 @Getter
 @Setter
 @NoArgsConstructor
@@ -16,12 +18,13 @@ public class ResponseMovieDTO {
     private String year;
     private String plot;
     private int length;
-    private double rating;
+    private BigDecimal rating;
     private int ageRestriction;
     private String leadingActor;
     private Genre genre;
     private String poster;
-    private String imdb_id;
+    private String imdbId;
+    private String genreName;
 
     public ResponseMovieDTO(Movie movie) {
         this.id = movie.getId();
@@ -34,6 +37,7 @@ public class ResponseMovieDTO {
         this.leadingActor = movie.getLeadingActor();
         this.genre = movie.getGenre();
         this.poster = movie.getPoster();
-        this.imdb_id = movie.getImdbId();
+        this.imdbId = movie.getImdbId();
+        this.genreName = movie.getGenre().getType();
     }
 }

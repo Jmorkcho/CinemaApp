@@ -1,15 +1,16 @@
 package com.finals.cinema.service;
 
+import com.finals.cinema.model.entity.UserRole;
 import com.finals.cinema.model.entity.UserStatus;
-import com.finals.cinema.util.Constants;
-import com.finals.cinema.util.exceptions.BadRequestException;
+import com.finals.cinema.repository.UserRepository;
 import com.finals.cinema.model.DTO.RegisterDTO;
 import com.finals.cinema.model.DTO.EditUserPasswordDTO;
 import com.finals.cinema.model.DTO.UserWithoutPassDTO;
 import com.finals.cinema.model.DTO.UserWithoutTicketAndPassDTO;
 import com.finals.cinema.model.entity.ConfirmationToken;
 import com.finals.cinema.model.entity.User;
-import com.finals.cinema.model.repository.ConfirmationTokenRepository;
+import com.finals.cinema.repository.ConfirmationTokenRepository;
+import com.finals.cinema.util.exceptions.NotFoundException;
 import com.finals.cinema.util.exceptions.UnauthorizedException;
 import com.finals.cinema.view.*;
 import com.vaadin.flow.component.Component;
@@ -19,8 +20,8 @@ import com.vaadin.flow.server.VaadinService;
 import com.vaadin.flow.server.VaadinServletRequest;
 import com.vaadin.flow.server.VaadinSession;
 import jakarta.servlet.http.HttpSession;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -40,52 +41,50 @@ import java.util.List;
 import static com.finals.cinema.util.Constants.*;
 
 @Service
-public class UserService extends AbstractService {
+@RequiredArgsConstructor
+@Slf4j
+public class UserService {
+
+    private final UserRepository userRepository;
 
     public record AuthorizedRoute(String route, String name, Class<? extends Component> view) { }
 
-    @Autowired
-    private PasswordEncoder passwordEncoder;
-    @Autowired
-    private ConfirmationTokenRepository confirmationTokenRepository;
+    private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+    private final ConfirmationTokenRepository confirmationTokenRepository;
 
     @Transactional
-    public UserWithoutPassDTO registerUser(RegisterDTO registerDTO) throws BadRequestException {
+    public UserWithoutPassDTO registerUser(RegisterDTO registerDTO) {
         if (registerDTO != null) {
-            if (userRepository.findByEmail(registerDTO.getEmail()) != null) {
-                throw new BadRequestException("There is already a user with that email address: " + registerDTO.getEmail());
-            }
-            if (userRepository.findByUsername(registerDTO.getUsername()) != null) {
-                throw new BadRequestException("There is already a user with that username: " + registerDTO.getUsername());
-            }
-            if (!registerDTO.getPassword().equals(registerDTO.getConfirmPassword())) {
-                throw new BadRequestException("Passwords must match");
-            }
-            User user = User.builder()
-                    .username(registerDTO.getUsername())
-                    .password(passwordEncoder.encode(registerDTO.getPassword()))
-                    .email(registerDTO.getEmail())
-                    .firstName(registerDTO.getFirstName())
-                    .lastName(registerDTO.getLastName())
-                    .age(registerDTO.getAge())
-                    .roleId(Constants.ROLE_USER)
-                    .statusId(UserStatus.valueOf(registerDTO.getStatus().toUpperCase()).ordinal() + 1)
-                    .createdAt(LocalDateTime.now())
-                    .tickets(new ArrayList<>())
-                    .isEnabled(false)
-                    .build();
-            user = userRepository.save(user);
-            ConfirmationToken confirmationToken = new ConfirmationToken(user);
-            confirmationTokenRepository.save(confirmationToken);
-            return new UserWithoutPassDTO(user);
+            throw new IllegalArgumentException("Register form cannot be null");
         }
-        throw new BadRequestException("Fill in missing fields");
+        if (userRepository.existsByEmailOrUsername(registerDTO.getEmail(), registerDTO.getUsername())) {
+            log.info("There is already a user with that email or username");
+            throw new IllegalArgumentException("There is already a user with that email or username");
+        }
+        User user = new User();
+        user.setUsername(registerDTO.getUsername());
+        user.setPassword(passwordEncoder.encode(registerDTO.getPassword()));
+        user.setEmail(registerDTO.getEmail());
+        user.setFirstName(registerDTO.getFirstName());
+        user.setLastName(registerDTO.getLastName());
+        user.setAge(registerDTO.getAge());
+        user.setRole(UserRole.USER);
+        user.setStatus(UserStatus.valueOf(registerDTO.getStatus()));
+        user.setCreatedAt(LocalDateTime.now());
+        user.setTickets(new ArrayList<>());
+        user.setActive(false);
+        user = userRepository.save(user);
+        ConfirmationToken confirmationToken = new ConfirmationToken(user);
+        confirmationTokenRepository.save(confirmationToken);
+        return new UserWithoutPassDTO(user);
     }
 
 
-    public UserWithoutTicketAndPassDTO logInUser(String username, String password) throws BadRequestException {
-        User user = userRepository.findByUsername(username);
-        if (user != null && passwordEncoder.matches(password, user.getPassword())) {
+    public UserWithoutTicketAndPassDTO logIn(String username, String password) {
+        User user = userRepository.findByUsername(username)
+          .orElseThrow(() -> new NotFoundException("User with username " + username + "is not found"));
+
+        if (passwordEncoder.matches(password, user.getPassword())) {
 
             // Create an Authentication object
             Authentication authentication = new UsernamePasswordAuthenticationToken(
@@ -106,22 +105,22 @@ public class UserService extends AbstractService {
             // Set the authentication in the SecurityContext
             SecurityContextHolder.getContext().setAuthentication(authentication);
             VaadinSession.getCurrent().setAttribute(User.class, user);
-            createRoutes(user.getRoleId());
+            createRoutes(user.getRole());
             return new UserWithoutTicketAndPassDTO(user);
         }
-        throw new BadRequestException("Username or Password incorrect");
+        throw new IllegalArgumentException("Username or Password incorrect");
     }
 
-    public UserWithoutTicketAndPassDTO changePassword(EditUserPasswordDTO passwordDTO, int userId) throws BadRequestException {
+    public UserWithoutTicketAndPassDTO changePassword(EditUserPasswordDTO passwordDTO, int userId) throws IllegalArgumentException {
         if (!passwordDTO.getNewPassword().equals(passwordDTO.getConfirmPassword())) {
-            throw new BadRequestException("Passwords must match");
+            throw new IllegalArgumentException("Passwords must match");
         }
         User user = userRepository.findById(userId).get();
         if (passwordEncoder.matches(passwordDTO.getOldPassword(), user.getPassword())) {
             user.setPassword(passwordEncoder.encode(passwordDTO.getNewPassword()));
             return new UserWithoutTicketAndPassDTO(userRepository.save(user));
         }
-        throw new BadRequestException("Username or Password incorrect");
+        throw new IllegalArgumentException("Username or Password incorrect");
     }
 
     public void logout() {
@@ -133,8 +132,8 @@ public class UserService extends AbstractService {
                 null);
     }
 
-    private void createRoutes(int role) {
-        getAuthorizedRoutes(role).stream()
+    private void createRoutes(UserRole role) {
+        getAuthorizedRoutes(role)
                 .forEach(route ->
                         RouteConfiguration.forSessionScope().setRoute(
                                 route.route, route.view, MainLayout.class));
@@ -143,61 +142,46 @@ public class UserService extends AbstractService {
 
     @Secured("ROLE_ADMIN")
     public void deleteUser(int userId) throws UnauthorizedException{
-        if (!isAdmin(userId)) {
-            throw new UnauthorizedException("Only admins can delete users!");
-        }
         userRepository.deleteById(userId);
     }
 
-    public void changeUserRole(int userId, int roleId) {
+    public void changeUserRole(int userId, UserRole role) {
         User user = userRepository.findById(userId).orElseThrow();
-        user.setRoleId(roleId);
+        user.setRole(role);
         userRepository.save(user);
     }
 
 
-    public int getCurrentUserRole() {
-        // First try to get from VaadinSession
+    public UserRole getCurrentUserRole() {
         User currentUser = VaadinSession.getCurrent().getAttribute(User.class);
         if (currentUser != null) {
-            return currentUser.getRoleId();
+            return currentUser.getRole();
         }
 
-        // Fall back to Spring Security context
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication != null && authentication.getPrincipal() instanceof User) {
-            return ((User) authentication.getPrincipal()).getRoleId();
-        }
+//        // Fall back to Spring Security context
+//        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+//        if (authentication != null && authentication.getPrincipal() instanceof User) {
+//            return ((User) authentication.getPrincipal()).getRole();
+//        }
 
         // If neither is available, return default role (user) or throw exception
-        return Constants.ROLE_USER; // or throw new UnauthorizedException("User not logged in");
+        return UserRole.USER; // or throw new UnauthorizedException("User not logged in");
     }
 
-    public List<AuthorizedRoute> getAuthorizedRoutes(int role) {
-        var routes = new ArrayList<AuthorizedRoute>();
-        if (role == ROLE_USER) {
-            routes.add(new AuthorizedRoute("", "Login", LoginView.class));
-            routes.add(new AuthorizedRoute("main", "Home", MainView.class));
-            routes.add(new AuthorizedRoute("tickets", "Home", TicketView.class));
-            routes.add(new AuthorizedRoute("projections", "Logout", ProjectionView.class));
-            routes.add(new AuthorizedRoute("cinemas", "Logout", CinemaView.class));
-        } else if (role == ROLE_ADMIN) {
-            routes.add(new AuthorizedRoute("", "Login", LoginView.class));
-            routes.add(new AuthorizedRoute("main", "Home", MainView.class));
-            routes.add(new AuthorizedRoute("tickets", "Home", TicketView.class));
-            routes.add(new AuthorizedRoute("projections", "Logout", ProjectionView.class));
-            routes.add(new AuthorizedRoute("cinemas", "Logout", CinemaView.class));
-            routes.add(new AuthorizedRoute("admin_panel", "Admin Panel", AdminView.class));
-        }
-        return routes;
+    public List<AuthorizedRoute> getAuthorizedRoutes(UserRole role) {
+      var routes = new ArrayList<AuthorizedRoute>();
+      routes.add(new AuthorizedRoute("main", "Main", MainView.class));
+      routes.add(new AuthorizedRoute("login", "Login", LoginView.class));
+      routes.add(new AuthorizedRoute("tickets", "Tickets", TicketView.class));
+      routes.add(new AuthorizedRoute("projections", "Projections", ProjectionView.class));
+      routes.add(new AuthorizedRoute("cinemas", "Cinemas", CinemaView.class));
+      if (role.equals(UserRole.ADMIN)) {
+        routes.add(new AuthorizedRoute("admin_panel", "Admin Panel", AdminView.class));
+      }
+      return routes;
     }
 
     public List<User> findAll() {
         return userRepository.findAll();
-    }
-
-    @Bean
-    public PasswordEncoder encoder() {
-        return new BCryptPasswordEncoder();
     }
 }

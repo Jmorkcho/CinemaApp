@@ -1,13 +1,16 @@
-package com.finals.cinema.model.repository;
+package com.finals.cinema.repository;
 
 import com.finals.cinema.model.entity.Genre;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
 
 import java.util.List;
+import java.util.Optional;
 
+@Repository
 public interface GenreRepository extends JpaRepository<Genre, Integer> {
 
-    List<Genre> findAllByType(String s);
+    Optional<Genre> findByType(String type);
 }
 

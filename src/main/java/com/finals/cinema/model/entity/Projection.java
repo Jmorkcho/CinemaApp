@@ -1,15 +1,10 @@
 package com.finals.cinema.model.entity;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.*;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
-import java.util.List;
-@AllArgsConstructor
-@NoArgsConstructor
-@Builder
+
 @Getter
 @Setter
 @Entity
@@ -18,25 +13,21 @@ public class Projection {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private Integer id;
+
     @ManyToOne
     @JoinColumn(name = "movie_id")
-    @JsonBackReference
     private Movie movie;
+
+    @Column(name = "starting_time")
     private LocalDateTime startAt;
+
+    @Column(name = "end_time")
     private LocalDateTime endAt;
+
     @ManyToOne
     @JoinColumn(name = "hall_id")
-    @JsonBackReference(value = "hall-projection")
     private Hall hall;
-    @ManyToMany
-    @JoinTable(
-            name = "projections_have_seats",
-            joinColumns = {@JoinColumn(name = "projection_id")},
-            inverseJoinColumns = {@JoinColumn(name = "seat_id")}
-    )
-    @JsonManagedReference
-    List<Seat> reservedSeats;
 }
 
 

@@ -1,11 +1,8 @@
 package com.finals.cinema.view;
 
-import com.finals.cinema.configuration.EmailService;
-import com.finals.cinema.model.DTO.UserWithoutTicketAndPassDTO;
-import com.finals.cinema.model.entity.User;
-import com.finals.cinema.model.repository.ConfirmationTokenRepository;
+import com.finals.cinema.service.EmailService;
+import com.finals.cinema.repository.ConfirmationTokenRepository;
 import com.finals.cinema.service.UserService;
-import com.finals.cinema.util.exceptions.BadRequestException;
 import com.vaadin.flow.component.ClientCallable;
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.UI;
@@ -14,17 +11,14 @@ import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.H1;
-import com.vaadin.flow.component.html.Span;
-import com.vaadin.flow.component.login.LoginForm;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.PasswordField;
 import com.vaadin.flow.component.textfield.TextField;
-import com.vaadin.flow.dom.ThemeList;
 import com.vaadin.flow.router.*;
-import com.vaadin.flow.server.VaadinSession;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 import com.vaadin.flow.theme.lumo.Lumo;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -35,6 +29,7 @@ import static com.finals.cinema.util.Constants.*;
 @Route(value = LOGIN_VIEW_ROUTE)
 @PageTitle("Login | Best Cinema")
 @AnonymousAllowed
+@Slf4j
 public class LoginView extends VerticalLayout implements BeforeEnterObserver {
 
     @Override
@@ -43,11 +38,9 @@ public class LoginView extends VerticalLayout implements BeforeEnterObserver {
         if (authentication != null && authentication.isAuthenticated() && !(authentication instanceof AnonymousAuthenticationToken)) {
             // User already logged in - redirect to main view
            event.forwardTo(MAIN_VIEW_ROUTE);
-           return;
         }
     }
 
-    //LoginForm login = new LoginForm();
 
     public LoginView(UserService userService, ConfirmationTokenRepository confirmationTokenRepository, EmailService emailService) {
         addClassName("login-view");
@@ -59,7 +52,7 @@ public class LoginView extends VerticalLayout implements BeforeEnterObserver {
                         "}", ui);
 
         getElement().getClassList().add("v-visible");
-        System.out.println("LoginView loaded");
+        log.info("LoginView loaded");
 
         addClassName("login-view");
         setSizeFull();
@@ -73,30 +66,29 @@ public class LoginView extends VerticalLayout implements BeforeEnterObserver {
         Button loginButton = new Button("Login", event ->
         {
             try {
-                if (!username.getValue().isBlank() && !password.getValue().isBlank())
+                if (!username.getValue().isBlank() || !password.getValue().isBlank())
                 {
-                    login(userService, username, password);
+                    log.error("Username or password is blank");
+                    throw new IllegalArgumentException("Please fill all the necessary fields");
                 }
-                else
-                {
-                    throw new BadRequestException("Please fill all the necessary fields");
-                }
-            } catch (BadRequestException e) {
+                userService.logIn(username.getValue(), password.getValue());
+                UI.getCurrent().navigate(MAIN_VIEW_ROUTE);
+            } catch (Exception e) {
                 Notification.show(e.getMessage(), 2500, Notification.Position.BOTTOM_CENTER);
             }
         });
         loginButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
         loginButton.addClickShortcut(Key.ENTER);
         Button openRegistrationButton = new Button("RegisterDialog", event -> openRegistrationDialog(userService, confirmationTokenRepository, emailService));
-        add(toggleButtonTheme, title, username, password, loginButton, registrationButton, openRegistrationButton);
-
+        add(toggleButtonTheme,
+            title,
+            username,
+            password,
+            loginButton,
+            registrationButton,
+            openRegistrationButton
+        );
     }
-
-    private void login(UserService userService, TextField username, PasswordField password) throws BadRequestException {
-        userService.logInUser(username.getValue(), password.getValue());
-        UI.getCurrent().navigate(MAIN_VIEW_ROUTE);
-    }
-
 
     Button toggleButtonTheme = new Button("\uD83C\uDF17", click -> {
         UI.getCurrent().getPage().executeJs(

@@ -1,20 +1,24 @@
 package com.finals.cinema.service;
 
 import com.finals.cinema.model.DTO.ResponseHallDTO;
-import com.finals.cinema.util.exceptions.BadRequestException;
+import com.finals.cinema.repository.CinemaRepository;
+import com.finals.cinema.repository.HallRepository;
 import com.finals.cinema.util.exceptions.NotFoundException;
-import com.finals.cinema.util.exceptions.UnauthorizedException;
 import com.finals.cinema.model.DTO.RequestHallDTO;
 import com.finals.cinema.model.entity.Cinema;
 import com.finals.cinema.model.entity.Hall;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.Optional;
 
 
 @Service
-public class HallService extends com.finals.cinema.service.AbstractService {
+@RequiredArgsConstructor
+public class HallService {
+
+    private final HallRepository hallRepository;
+    private final CinemaRepository cinemaRepository;
 
     public ResponseHallDTO getHallById(int id) {
         Optional<Hall> sHall = hallRepository.findById(id);
@@ -24,31 +28,24 @@ public class HallService extends com.finals.cinema.service.AbstractService {
         return new ResponseHallDTO(sHall.get());
     }
 
-    public ResponseHallDTO addHall(RequestHallDTO requestHallDTO, int userId) throws BadRequestException, UnauthorizedException {
-        if (!isAdmin(userId)) {
-            throw new UnauthorizedException("Only admins can add halls");
-        }
+    public ResponseHallDTO addHall(RequestHallDTO requestHallDTO) {
+
         Optional<Cinema> sCinema = cinemaRepository.findById(requestHallDTO.getCinemaId());
         if (sCinema.isEmpty()) {
             throw new NotFoundException("Cinema is not found");
         }
         Cinema cinema = sCinema.get();
         if (cinemaHasHall(cinema,requestHallDTO.getNumber())) {
-            throw new BadRequestException("There is already a hall with that number in that cinema");
+            throw new IllegalArgumentException("There is already a hall with that number in that cinema");
         }
-        Hall hall = Hall.builder()
-                .number(requestHallDTO.getNumber())
-                .capacity(requestHallDTO.getCapacity())
-                .cinema(cinema)
-                .projections(new ArrayList<>())
-                .build();
+        Hall hall = new Hall();
+        hall.setNumber(requestHallDTO.getNumber());
+        hall.setCapacity(requestHallDTO.getCapacity());
+        hall.setCinema(cinema);
         return new ResponseHallDTO(hallRepository.save(hall));
     }
 
-    public ResponseHallDTO removeHall(int hallId, int userId) throws UnauthorizedException {
-        if (!isAdmin(userId)) {
-            throw new UnauthorizedException("Only admins can remove halls");
-        }
+    public ResponseHallDTO removeHall(int hallId) {
         Optional<Hall> sHall = hallRepository.findById(hallId);
         if (sHall.isEmpty()) {
             throw new NotFoundException("Hall does not exist");
@@ -58,10 +55,7 @@ public class HallService extends com.finals.cinema.service.AbstractService {
         return deletedHall;
     }
 
-    public ResponseHallDTO editHall(RequestHallDTO requestHallDTO, int hallId, int userId) throws BadRequestException, UnauthorizedException {
-        if (!isAdmin(userId)) {
-            throw new UnauthorizedException("Only admins can edit halls");
-        }
+    public ResponseHallDTO editHall(RequestHallDTO requestHallDTO, int hallId) {
         Optional<Cinema> sCinema = cinemaRepository.findById(requestHallDTO.getCinemaId());
         if (sCinema.isEmpty()) {
             throw new NotFoundException("Cinema is not found");
@@ -72,7 +66,7 @@ public class HallService extends com.finals.cinema.service.AbstractService {
         }
         Hall hall = sHall.get();
         if (hall.getNumber() == requestHallDTO.getNumber() && hall.getCapacity() == requestHallDTO.getCapacity()) {
-            throw new BadRequestException("You need to change the values for an edit");
+            throw new IllegalArgumentException("You need to change the values for an edit");
         }
         hall.setNumber(requestHallDTO.getNumber());
         hall.setCapacity(requestHallDTO.getCapacity());

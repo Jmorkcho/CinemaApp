@@ -1,12 +1,12 @@
 package com.finals.cinema.view;
 
 
-import com.finals.cinema.configuration.EmailService;
-import com.finals.cinema.model.repository.ConfirmationTokenRepository;
+import com.finals.cinema.model.entity.UserRole;
+import com.finals.cinema.service.EmailService;
+import com.finals.cinema.repository.ConfirmationTokenRepository;
 import com.finals.cinema.service.MovieService;
 import com.finals.cinema.service.UserService;
 import com.finals.cinema.util.Constants;
-import com.vaadin.flow.component.ClientCallable;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.applayout.DrawerToggle;
@@ -15,16 +15,11 @@ import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H1;
-import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.dom.ThemeList;
 import com.vaadin.flow.router.HighlightConditions;
-import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouterLink;
-import com.vaadin.flow.theme.lumo.Lumo;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -125,9 +120,9 @@ public class MainLayout extends AppLayout {
         );
 
         // Get current user's role from the service
-        int currentUserRole = userService.getCurrentUserRole();
+        UserRole currentUserRole = userService.getCurrentUserRole();
 
-        if (currentUserRole == Constants.ROLE_ADMIN) { // Check if admin
+        if (currentUserRole.equals(UserRole.ADMIN)) { // Check if admin
             RouterLink adminLink = new RouterLink("Admin Panel", AdminView.class);
             adminLink.setHighlightCondition(HighlightConditions.sameLocation());
             drawerLayout.add(adminLink);
@@ -156,5 +151,4 @@ public class MainLayout extends AppLayout {
         loginDialog.add(closeButton, loginForm);
         loginDialog.open();
     }
-
 }

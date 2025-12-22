@@ -3,14 +3,16 @@ package com.finals.cinema.service;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.finals.cinema.model.DTO.IMDBMovieDTO;
+import com.finals.cinema.repository.GenreRepository;
+import com.finals.cinema.repository.MovieRepository;
 import com.finals.cinema.util.exceptions.BadGetawayException;
-import com.finals.cinema.util.exceptions.BadRequestException;
 import com.finals.cinema.util.exceptions.NotFoundException;
 import com.finals.cinema.util.exceptions.UnauthorizedException;
 import com.finals.cinema.model.DTO.AddMovieDTO;
 import com.finals.cinema.model.DTO.ResponseMovieDTO;
 import com.finals.cinema.model.entity.Genre;
 import com.finals.cinema.model.entity.Movie;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.io.FileNotFoundException;
@@ -19,13 +21,18 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 
 import static com.finals.cinema.util.Constants.*;
 
 @Service
-public class MovieService extends com.finals.cinema.service.AbstractService {
+@RequiredArgsConstructor
+public class MovieService {
+
+    private final MovieRepository movieRepository;
+    private final GenreRepository genreRepository;
 
     public List<ResponseMovieDTO> getAllMovies() {
         List<Movie> movies = movieRepository.findAll();
@@ -59,39 +66,34 @@ public class MovieService extends com.finals.cinema.service.AbstractService {
         return movies;
     }
 
-    public ResponseMovieDTO addMovie(AddMovieDTO addMovieDTO, int userId) throws Exception, UnauthorizedException {
-        if (!isAdmin(userId)) {
-            throw new UnauthorizedException("Only admins can add movies");
-        }
+    public ResponseMovieDTO addMovie(AddMovieDTO addMovieDTO) throws Exception {
         Movie sMovie = movieRepository.findByTitle(addMovieDTO.getTitle());
         if (sMovie != null) {
-            throw new BadRequestException("There is already a movie with that title");
+            throw new IllegalArgumentException("There is already a movie with that title");
         }
-        Optional<Genre> sGenre = genreRepository.findById(addMovieDTO.getGenreId());
+        Optional<Genre> sGenre = genreRepository.findByType(addMovieDTO.getGenre().getType());
         if (sGenre.isEmpty()) {
-            throw new BadRequestException("Invalid genre");
+            throw new IllegalArgumentException("Invalid genre");
         }
-        IMDBMovieDTO imdb = addMovie(addMovieDTO);
+        IMDBMovieDTO imdb = fetchImdbMovie(addMovieDTO);
         if (imdb.getImdbId().isBlank() || imdb.getImdbId() == null) {
-            throw new BadRequestException("Movie with that title does not exist");
+            throw new IllegalArgumentException("Movie with that title does not exist");
         }
-        Movie movie = Movie.builder()
-                .title(imdb.getTitle())
-                .year(imdb.getYear())
-                .plot(imdb.getPlot())
-                .length(imdb.getLength())
-                .rating(imdb.getRating())
-                .ageRestriction(addMovieDTO.getAgeRestriction())
-                .leadingActor(imdb.getLead())
-                .genre(sGenre.get())
-                .poster(imdb.getPoster())
-                .imdbId(imdb.getImdbId())
-                .projections(new ArrayList<>())
-                .build();
+        Movie movie = new Movie();
+        movie.setTitle(imdb.getTitle());
+        movie.setYear(imdb.getYear());
+        movie.setPlot(imdb.getPlot());
+        movie.setLength(imdb.getLength());
+        movie.setRating(imdb.getRating());
+        movie.setAgeRestriction(addMovieDTO.getAgeRestriction());
+        movie.setLeadingActor(imdb.getLead());
+        movie.setGenre(sGenre.get());
+        movie.setPoster(imdb.getPoster());
+        movie.setImdbId(imdb.getImdbId());
         return new ResponseMovieDTO(movieRepository.save(movie));
     }
 
-    private IMDBMovieDTO addMovie(AddMovieDTO addMovieDTO) throws Exception {
+    private IMDBMovieDTO fetchImdbMovie(AddMovieDTO addMovieDTO) throws Exception {
         String title = addMovieDTO.getTitle().replaceAll("\\s", "");
         try {
             String imdbId = getImdbId(title);
@@ -126,10 +128,7 @@ public class MovieService extends com.finals.cinema.service.AbstractService {
         return jsonNode.get("imdb_id").asText().trim();
     }
 
-    public ResponseMovieDTO deleteMovie(int movieId, int userId) throws UnauthorizedException {
-        if (!isAdmin(userId)) {
-            throw new UnauthorizedException("Only admins can remove movies");
-        }
+    public ResponseMovieDTO deleteMovie(int movieId) throws UnauthorizedException {
         Optional<Movie> sMovie = movieRepository.findById(movieId);
         if (sMovie.isEmpty()) {
             throw new NotFoundException("Movie does not exist");
@@ -138,6 +137,7 @@ public class MovieService extends com.finals.cinema.service.AbstractService {
         return new ResponseMovieDTO(sMovie.get());
     }
 
+    // TODO
     public JsonNode getImdbInfo(String id) throws BadGetawayException, FileNotFoundException {
 
         HttpRequest request = HttpRequest.newBuilder()

@@ -1,7 +1,7 @@
 package com.finals.cinema.view;
 
 import com.finals.cinema.model.entity.Movie;
-import com.finals.cinema.model.repository.MovieRepository;
+import com.finals.cinema.repository.MovieRepository;
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.grid.Grid;
@@ -10,16 +10,12 @@ import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouteConfiguration;
-import com.vaadin.flow.server.auth.AnonymousAllowed;
-import jakarta.annotation.security.RolesAllowed;
 import com.vaadin.flow.component.orderedlayout.FlexLayout.FlexWrap;
 
 import java.util.List;
-import java.util.stream.IntStream;
 
 import static com.finals.cinema.util.Constants.MAIN_VIEW_ROUTE;
 

@@ -11,18 +11,18 @@ import java.util.UUID;
 
 @Getter
 @Setter
-@NoArgsConstructor
 @Entity
 @Table(name = "confirmation_token")
+@NoArgsConstructor
 public class ConfirmationToken {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name="id")
-    private long tokenId;
+    @Column(name= "id")
+    private Long tokenId;
 
-    @Column(name="confirmation_token")
+    @Column(name= "confirmation_token")
     private String confirmationToken;
-
 
     @OneToOne(targetEntity = User.class, fetch = FetchType.EAGER)
     @JoinColumn(nullable = false, name = "user_id")
@@ -32,5 +32,4 @@ public class ConfirmationToken {
         this.user = user;
         confirmationToken = UUID.randomUUID().toString();
     }
-
 }

@@ -8,15 +8,15 @@ import jakarta.persistence.*;
 
 @Getter
 @Setter
-@NoArgsConstructor
 @Entity
 @Table(name = "genres")
 public class Genre {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
+
+    @Column(name = "type")
     private String type;
-
-
 }
 

@@ -3,8 +3,6 @@ package com.finals.cinema.util;
 
 public class Constants {
 
-    public static final int ROLE_USER = 1;
-    public static final int ROLE_ADMIN = 2;
     public static final String API_URL_SEARCH_ALL_FILMS = "https://imdb-internet-movie-database-unofficial.p.rapidapi.com/search/";
     public static final String API_URL_SEARCH_BY_NAME = "https://moviesminidatabase.p.rapidapi.com/movie/imdb_id/byTitle/";
     public static final String API_URL_SEARCH_BY_IMDB_ID = "https://moviesminidatabase.p.rapidapi.com/movie/id/";
@@ -16,7 +14,7 @@ public class Constants {
     public static final String MAIN_VIEW_ROUTE = "main";
     public static final String REGISTRATION_VIEW_ROUTE = "registration";
     public static final String CONFIRMATION_VIEW_ROUTE = "confirmation";
-    public static final String LOGIN_VIEW_ROUTE = "signin";
+    public static final String LOGIN_VIEW_ROUTE = "login";
     public static final String CINEMA_VIEW_ROUTE = "cinemas";
     public static final String NEWEST_FILMS_VIEW_ROUTE = "newestfilms";
     public static final String PROJECTION_VIEW_ROUTE = "projections";

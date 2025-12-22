@@ -1,7 +1,7 @@
 package com.finals.cinema.view;
 
-import com.finals.cinema.configuration.EmailService;
-import com.finals.cinema.model.repository.ConfirmationTokenRepository;
+import com.finals.cinema.service.EmailService;
+import com.finals.cinema.repository.ConfirmationTokenRepository;
 import com.finals.cinema.service.MovieService;
 import com.finals.cinema.service.UserService;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;

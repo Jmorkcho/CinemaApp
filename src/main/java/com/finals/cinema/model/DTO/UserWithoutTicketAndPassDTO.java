@@ -24,6 +24,5 @@ public class UserWithoutTicketAndPassDTO {
         this.email = user.getEmail();
         this.name = user.getFirstName() + " " + user.getLastName();
         this.age = user.getAge();
-        this.status = UserStatus.values()[user.getStatusId() - 1].toString().toLowerCase();
     }
 }

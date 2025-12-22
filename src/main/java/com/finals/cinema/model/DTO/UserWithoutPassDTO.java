@@ -29,7 +29,6 @@ public class UserWithoutPassDTO {
         this.email = user.getEmail();
         this.name = user.getFirstName() + " " + user.getLastName();
         this.age = user.getAge();
-        this.status = UserStatus.values()[user.getStatusId() - 1].toString().toLowerCase();
         this.tickets = new ArrayList<>();
         for (Ticket ticket : user.getTickets()) {
             this.tickets.add(new ResponseTicketDTO(ticket));

@@ -1,4 +1,4 @@
-package com.finals.cinema.model.repository;
+package com.finals.cinema.repository;
 
 import com.finals.cinema.model.DTO.ResponseTicketDTO;
 import com.finals.cinema.model.entity.Ticket;
@@ -12,6 +12,5 @@ import java.util.List;
 public interface TicketRepository extends JpaRepository<Ticket, Integer> {
 
     List<ResponseTicketDTO> findAllByOwnerId(int id);
-
 
 }

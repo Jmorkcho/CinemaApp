@@ -1,12 +1,12 @@
 package com.finals.cinema.model.DTO;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.finals.cinema.util.Constants;
-import com.finals.cinema.util.exceptions.BadRequestException;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import java.math.BigDecimal;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -20,11 +20,11 @@ public class IMDBMovieDTO {
     private String year;
     private String plot;
     private int length;
-    private double rating;
+    private BigDecimal rating;
     private String poster;
     private String lead;
 
-    public IMDBMovieDTO(JsonNode jsonNode) throws BadRequestException {
+    public IMDBMovieDTO(JsonNode jsonNode) {
 //        this.imdbId = jsonNode.get("id").asText().trim();
         this.title = jsonNode.get("title").asText().trim();
         this.year = jsonNode.get("year").asText().trim();
@@ -36,12 +36,12 @@ public class IMDBMovieDTO {
 //        this.lead = arrayNode.get(0).get("actor").asText().trim();
     }
 
-    private int calculateLength(String length) throws BadRequestException {
+    private int calculateLength(String length) {
         int minutes = 0;
         Pattern pattern = Pattern.compile(Constants.MOVIE_LENGTH_REGEX);
         Matcher matcher = pattern.matcher(length);
         if (!matcher.matches()) {
-            throw new BadRequestException("Invalid Length");
+            throw new IllegalArgumentException("Invalid Length");
         }
         if (matcher.group(6) != null) {
             return Integer.parseInt(matcher.group(6));

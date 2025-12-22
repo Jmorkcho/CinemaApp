@@ -1,12 +1,12 @@
 package com.finals.cinema.view;
 
-import com.finals.cinema.configuration.EmailService;
+import com.finals.cinema.service.EmailService;
 import com.finals.cinema.model.DTO.RegisterDTO;
 import com.finals.cinema.model.DTO.UserWithoutPassDTO;
 import com.finals.cinema.model.entity.UserStatus;
-import com.finals.cinema.model.repository.ConfirmationTokenRepository;
+import com.finals.cinema.repository.ConfirmationTokenRepository;
 import com.finals.cinema.service.UserService;
-import com.finals.cinema.util.exceptions.BadRequestException;
+import com.finals.cinema.util.exceptions.NotFoundException;
 import com.vaadin.flow.component.HasValueAndElement;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
@@ -15,14 +15,11 @@ import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.H1;
-import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.notification.Notification;
-import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.textfield.EmailField;
 import com.vaadin.flow.component.textfield.PasswordField;
 import com.vaadin.flow.component.textfield.TextField;
-import com.vaadin.flow.theme.lumo.LumoUtility;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.Validation;
@@ -93,7 +90,9 @@ public class RegistrationForm extends FormLayout {
         submitButton = new Button("Register", event ->
         {
             try {
-
+                    if (!password.equals(passwordConfirm)) {
+                        throw new IllegalArgumentException("Passwords must match");
+                    }
                     UserWithoutPassDTO register = register(userService);
                     sendConfirmationTokenJD(confirmationTokenRepository, register, emailService);
 //                    UI.getCurrent().navigate(CONFIRMATION_VIEW_ROUTE);
@@ -101,7 +100,7 @@ public class RegistrationForm extends FormLayout {
                     //popup on register event
                     UI.getCurrent().navigate(MAIN_VIEW_ROUTE);
                     registrationDialog.close();
-            } catch (BadRequestException e) {
+            } catch (Exception e) {
                 Notification.show(e.getMessage(), -1, Notification.Position.BOTTOM_CENTER);
             }
         });
@@ -134,13 +133,17 @@ public class RegistrationForm extends FormLayout {
         mailMessage.setSubject("Complete Registration!");
         mailMessage.setFrom("kinoarenaproject@gmail.com");
 
-        emailService.sendNewMail(register.getEmail(),"Complete registration","To confirm your account, please click here : " +
-                "http://localhost:8888/confirm-account?token=" +
-                confirmationTokenRepository.findByUserId(register.getId()).getConfirmationToken());
+        String confirmationToken = confirmationTokenRepository.findByUserId(register.getId())
+          .orElseThrow(() -> new NotFoundException("Confirmation token not found"))
+          .getConfirmationToken();
+
+        emailService.sendNewMail(register.getEmail(),
+          "Complete registration",
+          "To confirm your account, please click here : " + "http://localhost:8888/confirm-account?token=" + confirmationToken);
     }
 
 
-    private UserWithoutPassDTO register(UserService userService) throws BadRequestException {
+    private UserWithoutPassDTO register(UserService userService) {
         int age = calculateAge(datePicker.getValue());
         RegisterDTO registerDTO = RegisterDTO.builder()
                 .firstName(firstName.getValue())
@@ -153,6 +156,7 @@ public class RegistrationForm extends FormLayout {
                 .age(age)
                 .build();
 
+        // todo make abstract
         Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
         Set<ConstraintViolation<RegisterDTO>> violations = validator.validate(registerDTO);
         if (!violations.isEmpty()) {
@@ -188,6 +192,4 @@ public class RegistrationForm extends FormLayout {
     public RegistrationForm(UserService userService, ConfirmationTokenRepository tokenRepo, EmailService emailService) {
         this(userService, tokenRepo, emailService, null); // Call the 4-param constructor with null
     }
-
-
 }

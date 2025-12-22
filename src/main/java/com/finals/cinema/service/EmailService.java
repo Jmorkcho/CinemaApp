@@ -1,4 +1,4 @@
-package com.finals.cinema.configuration;
+package com.finals.cinema.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.javamail.JavaMailSender;

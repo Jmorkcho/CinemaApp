@@ -1,5 +1,6 @@
 package com.finals.cinema.model.DTO;
 
+import com.finals.cinema.model.entity.Genre;
 import lombok.*;
 
 import jakarta.validation.constraints.Min;
@@ -20,6 +21,5 @@ public class AddMovieDTO {
     @Min(value = 3,message = "Age restriction cannot be less than 3")
     private Integer ageRestriction;
     @NotNull(message = "Please fill all necessary fields")
-    @Min(value = 1,message = "Genre Id cannot be less than 1")
-    private Integer genreId;
+    private Genre genre;
 }
