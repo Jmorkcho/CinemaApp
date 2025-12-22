@@ -94,7 +94,7 @@ public class MovieService {
     }
 
     public void updateMovie(UpdateMovieDTO dto) {
-        if (dto == null || (StringUtils.isBlank(dto.getTitle()) && dto.getAgeRestriction() == null || dto.getGenre() == null)) {
+        if (dto == null || (StringUtils.isBlank(dto.getTitle()) && dto.getAgeRestriction() == null && dto.getGenre() == null)) {
             return;
         }
 
@@ -103,10 +103,6 @@ public class MovieService {
         if (movieRepository.existsByTitle(dto.getTitle())) {
             throw new IllegalArgumentException("There is already a movie with that title");
         }
-        Optional<Genre> sGenre = genreRepository.findByType(dto.getGenre().getType());
-        if (sGenre.isEmpty()) {
-            throw new IllegalArgumentException("Invalid genre");
-        }
         if (!StringUtils.isBlank(dto.getTitle())) {
             movie.setTitle(dto.getTitle());
         }
@@ -114,6 +110,10 @@ public class MovieService {
             movie.setAgeRestriction(dto.getAgeRestriction());
         }
         if (dto.getGenre() != null) {
+            Optional<Genre> sGenre = genreRepository.findByType(dto.getGenre().getType());
+            if (sGenre.isEmpty()) {
+                throw new IllegalArgumentException("Invalid genre");
+            }
             movie.setGenre(dto.getGenre());
         }
         movieRepository.save(movie);
