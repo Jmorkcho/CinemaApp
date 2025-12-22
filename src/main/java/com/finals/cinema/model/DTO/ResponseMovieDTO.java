@@ -24,6 +24,7 @@ public class ResponseMovieDTO {
     private Genre genre;
     private String poster;
     private String imdbId;
+    private String trailer;
     private String genreName;
 
     public ResponseMovieDTO(Movie movie) {
@@ -38,6 +39,7 @@ public class ResponseMovieDTO {
         this.genre = movie.getGenre();
         this.poster = movie.getPoster();
         this.imdbId = movie.getImdbId();
+        this.trailer = movie.getTrailer();
         this.genreName = movie.getGenre().getType();
     }
 }

@@ -22,4 +22,6 @@ public class AddMovieDTO {
     private Integer ageRestriction;
     @NotNull(message = "Please fill all necessary fields")
     private Genre genre;
+
+    private String trailer;
 }
