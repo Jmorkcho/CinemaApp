@@ -3,6 +3,7 @@ package com.finals.cinema.view;
 import com.finals.cinema.model.DTO.AddMovieDTO;
 import com.finals.cinema.model.DTO.MovieDTO;
 import com.finals.cinema.model.DTO.ResponseMovieDTO;
+import com.finals.cinema.model.DTO.UpdateMovieDTO;
 import com.finals.cinema.model.entity.Genre;
 import com.finals.cinema.model.entity.User;
 import com.finals.cinema.model.entity.UserRole;
@@ -180,6 +181,7 @@ public class AdminView extends VerticalLayout implements BeforeEnterObserver {
 
             if (selected != null) {
                 MovieDTO movie = MovieDTO.builder()
+                  .id(selected.getId())
                   .title(selected.getTitle())
                   .ageRestriction(selected.getAgeRestriction())
                   .genre(selected.getGenre().getType())
@@ -213,9 +215,8 @@ public class AdminView extends VerticalLayout implements BeforeEnterObserver {
 
         form.addListener(MovieForm.SaveEvent.class, event -> {
             try {
-                AddMovieDTO movie = form.getMovieData();
-                // todo change to edit movie
-                movieService.addMovie(movie);
+                UpdateMovieDTO movie = form.getMovieData();
+                movieService.updateMovie(movie);
                 refreshMovieGrid(movieGrid);
                 form.setVisible(false);
             } catch (Exception ex) {

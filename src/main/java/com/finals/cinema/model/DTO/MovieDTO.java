@@ -7,6 +7,7 @@ import lombok.*;
 @AllArgsConstructor
 public class MovieDTO {
 
+  private Integer id;
   private String title;
   private Integer ageRestriction;
   private String genre;

@@ -1,11 +1,9 @@
 package com.finals.cinema.view.forms;
 
-import com.finals.cinema.model.DTO.AddMovieDTO;
 import com.finals.cinema.model.DTO.MovieDTO;
+import com.finals.cinema.model.DTO.UpdateMovieDTO;
 import com.finals.cinema.model.entity.Genre;
-import com.finals.cinema.repository.MovieRepository;
 import com.finals.cinema.service.GenreService;
-import com.finals.cinema.service.MovieService;
 import com.vaadin.flow.component.ComponentEvent;
 import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.Key;
@@ -18,9 +16,7 @@ import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.shared.Registration;
 
-import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 public class MovieForm extends FormLayout {
@@ -82,12 +78,13 @@ public class MovieForm extends FormLayout {
         }
     }
 
-    public AddMovieDTO getMovieData() {
+    public UpdateMovieDTO getMovieData() {
         Map<String, Genre> genreTypesToGenre = genreService.getAllGenres()
           .stream()
           .collect(Collectors.toMap(Genre::getType, item -> item));
 
-        return AddMovieDTO.builder()
+        return UpdateMovieDTO.builder()
+                .id(movie.getId())
                 .title(title.getValue())
                 .ageRestriction(ageRestriction.getValue().intValue())
                 .genre(genreTypesToGenre.get(genreCombobox.getValue()))

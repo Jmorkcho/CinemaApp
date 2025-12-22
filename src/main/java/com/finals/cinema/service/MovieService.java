@@ -3,6 +3,7 @@ package com.finals.cinema.service;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.finals.cinema.model.DTO.IMDBMovieDTO;
+import com.finals.cinema.model.DTO.UpdateMovieDTO;
 import com.finals.cinema.repository.GenreRepository;
 import com.finals.cinema.repository.MovieRepository;
 import com.finals.cinema.util.exceptions.BadGetawayException;
@@ -13,6 +14,7 @@ import com.finals.cinema.model.DTO.ResponseMovieDTO;
 import com.finals.cinema.model.entity.Genre;
 import com.finals.cinema.model.entity.Movie;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import java.io.FileNotFoundException;
@@ -21,7 +23,6 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 
@@ -67,8 +68,7 @@ public class MovieService {
     }
 
     public ResponseMovieDTO addMovie(AddMovieDTO addMovieDTO) throws Exception {
-        Movie sMovie = movieRepository.findByTitle(addMovieDTO.getTitle());
-        if (sMovie != null) {
+        if (movieRepository.existsByTitle(addMovieDTO.getTitle())) {
             throw new IllegalArgumentException("There is already a movie with that title");
         }
         Optional<Genre> sGenre = genreRepository.findByType(addMovieDTO.getGenre().getType());
@@ -76,7 +76,7 @@ public class MovieService {
             throw new IllegalArgumentException("Invalid genre");
         }
         IMDBMovieDTO imdb = fetchImdbMovie(addMovieDTO);
-        if (imdb.getImdbId().isBlank() || imdb.getImdbId() == null) {
+        if (imdb.getImdbId().isBlank()) {
             throw new IllegalArgumentException("Movie with that title does not exist");
         }
         Movie movie = new Movie();
@@ -91,6 +91,23 @@ public class MovieService {
         movie.setPoster(imdb.getPoster());
         movie.setImdbId(imdb.getImdbId());
         return new ResponseMovieDTO(movieRepository.save(movie));
+    }
+
+    public void updateMovie(UpdateMovieDTO dto) {
+        if (dto == null || (StringUtils.isBlank(dto.getTitle()) && dto.getAgeRestriction() == null || dto.getGenre() == null)) {
+            return;
+        }
+
+        Movie movie = movieRepository.findById(dto.getId())
+          .orElseThrow(() -> new NotFoundException("Movie with id " + dto.getId() + " does not exist"));
+        if (movieRepository.existsByTitle(dto.getTitle())) {
+            throw new IllegalArgumentException("There is already a movie with that title");
+        }
+        Optional<Genre> sGenre = genreRepository.findByType(dto.getGenre().getType());
+        if (sGenre.isEmpty()) {
+            throw new IllegalArgumentException("Invalid genre");
+        }
+        movieRepository.save(movie);
     }
 
     private IMDBMovieDTO fetchImdbMovie(AddMovieDTO addMovieDTO) throws Exception {

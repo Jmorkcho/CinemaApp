@@ -19,7 +19,7 @@ public class Projection {
     @JoinColumn(name = "movie_id")
     private Movie movie;
 
-    @Column(name = "starting_time")
+    @Column(name = "start_time")
     private LocalDateTime startAt;
 
     @Column(name = "end_time")
