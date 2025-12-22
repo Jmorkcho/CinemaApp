@@ -15,6 +15,7 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.shared.Registration;
+import lombok.Getter;
 
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -83,15 +84,20 @@ public class MovieForm extends FormLayout {
           .stream()
           .collect(Collectors.toMap(Genre::getType, item -> item));
 
+        String updateTitle = movie.getTitle().equals(title.getValue()) ? null : title.getValue();
+        Integer updateAgeRestriction = movie.getAgeRestriction().equals(ageRestriction.getValue().intValue()) ? null : ageRestriction.getValue().intValue();
+        Genre updateGenre = movie.getGenre().equals(genreTypesToGenre.get(genreCombobox.getValue()).getType()) ? null : genreTypesToGenre.get(genreCombobox.getValue());
+
         return UpdateMovieDTO.builder()
                 .id(movie.getId())
-                .title(title.getValue())
-                .ageRestriction(ageRestriction.getValue().intValue())
-                .genre(genreTypesToGenre.get(genreCombobox.getValue()))
+                .title(updateTitle)
+                .ageRestriction(updateAgeRestriction)
+                .genre(updateGenre)
                 .build();
     }
 
     // Events
+    @Getter
     public static abstract class MovieFormEvent extends ComponentEvent<MovieForm> {
         private final MovieDTO movie;
 
@@ -100,9 +106,6 @@ public class MovieForm extends FormLayout {
             this.movie = movie;
         }
 
-        public MovieDTO getMovie() {
-            return movie;
-        }
     }
 
     public static class SaveEvent extends MovieFormEvent {

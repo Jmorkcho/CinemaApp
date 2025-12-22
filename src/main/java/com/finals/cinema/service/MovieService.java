@@ -107,6 +107,15 @@ public class MovieService {
         if (sGenre.isEmpty()) {
             throw new IllegalArgumentException("Invalid genre");
         }
+        if (!StringUtils.isBlank(dto.getTitle())) {
+            movie.setTitle(dto.getTitle());
+        }
+        if (dto.getAgeRestriction() != null) {
+            movie.setAgeRestriction(dto.getAgeRestriction());
+        }
+        if (dto.getGenre() != null) {
+            movie.setGenre(dto.getGenre());
+        }
         movieRepository.save(movie);
     }
 
