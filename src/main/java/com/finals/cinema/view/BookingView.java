@@ -10,6 +10,9 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.*;
+import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.notification.NotificationVariant;
+import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.BeforeEnterEvent;
@@ -133,17 +136,17 @@ public class BookingView extends VerticalLayout implements BeforeEnterObserver {
         contentLayout.setSpacing(true);
         contentLayout.getStyle()
                 .set("width", "100%")
-                .set("max-width", "none");
+                .set("max-width", "none")
+                .set("flex-wrap", "wrap");
 
         // Left: Seat grid
         VerticalLayout seatSection = createSeatGridSection(projection);
-        seatSection.setFlexGrow(1, seatSection);
 
         // Right: Summary and confirm
         VerticalLayout summarySection = createSummarySection(projection);
         summarySection.setWidth("300px");
         summarySection.getStyle()
-                .set("flex-shrink", "0");
+                .set("flex", "0 0 300px");
 
         contentLayout.add(seatSection, summarySection);
         mainLayout.add(contentLayout);
@@ -176,121 +179,79 @@ public class BookingView extends VerticalLayout implements BeforeEnterObserver {
         layout.getStyle()
                 .set("background-color", "#2a2a2a")
                 .set("border-radius", "8px")
-                .set("padding", "2em");
+                .set("padding", "1.5em")
+                .set("box-sizing", "border-box")
+                .set("min-width", "0")
+                .set("flex", "1 1 560px");
 
-        // Screen illustration
+        // Screen illustration, centered above the seats
         Div screen = new Div();
         screen.setText("SCREEN");
-        screen.getStyle()
-                .set("text-align", "center")
-                .set("color", "#888888")
-                .set("font-weight", "bold")
-                .set("margin-bottom", "2em")
-                .set("padding-bottom", "1em")
-                .set("border-bottom", "2px solid #4a4a4a")
-                .set("font-size", "1.2em");
+        screen.addClassName("seat-screen");
         layout.add(screen);
 
-        // Calculate number of rows
         int capacity = projection.getHall().getCapacity();
         int numRows = (int) Math.ceil((double) capacity / SEATS_PER_ROW);
 
-        // Seat grid
-        VerticalLayout seatGrid = new VerticalLayout();
-        seatGrid.setSpacing(true);
-        seatGrid.setPadding(false);
+        // The scroller only shows a scrollbar when the map cannot shrink any further
+        Div seatMap = new Div();
+        seatMap.addClassName("seat-map");
+        seatMap.getStyle().set("--seats-per-row", String.valueOf(SEATS_PER_ROW));
 
         for (int row = 0; row < numRows; row++) {
-            HorizontalLayout rowLayout = new HorizontalLayout();
-            rowLayout.setSpacing(true);
-            rowLayout.setDefaultVerticalComponentAlignment(Alignment.CENTER);
-
-            // Row label
             Div rowLabel = new Div();
             rowLabel.setText(String.valueOf((char) ('A' + row)));
-            rowLabel.setWidth("30px");
-            rowLabel.getStyle()
-                    .set("text-align", "center")
-                    .set("font-weight", "bold")
-                    .set("color", "#888888");
-            rowLayout.add(rowLabel);
+            rowLabel.addClassName("seat-row-label");
+            seatMap.add(rowLabel);
 
-            // Seats in row
             int seatsInRow = Math.min(SEATS_PER_ROW, capacity - (row * SEATS_PER_ROW));
             for (int seatNum = 1; seatNum <= seatsInRow; seatNum++) {
-                int seatId = row * SEATS_PER_ROW + seatNum;
-                if (seatId <= capacity) {
-                    Button seatButton = createSeatButton(seatId);
-                    rowLayout.add(seatButton);
-                }
+                seatMap.add(createSeat(row * SEATS_PER_ROW + seatNum));
             }
-
-            seatGrid.add(rowLayout);
+            // Keep every row aligned to the same number of columns
+            for (int filler = seatsInRow; filler < SEATS_PER_ROW; filler++) {
+                seatMap.add(new Div());
+            }
         }
 
-        layout.add(seatGrid);
+        Div scroller = new Div(seatMap);
+        scroller.addClassName("seat-scroller");
+        layout.add(scroller);
 
         // Legend
         HorizontalLayout legend = createLegend();
+        legend.setWidthFull();
+        legend.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
         layout.add(legend);
 
         return layout;
     }
 
-    private Button createSeatButton(int seatId) {
-        Button seatButton = new Button();
-        seatButton.setWidth("35px");
-        seatButton.setHeight("35px");
-        seatButton.getStyle()
-                .set("border-radius", "4px")
-                .set("border", "1px solid #4a4a4a")
-                .set("font-weight", "600")
-                .set("font-size", "0.8em")
-                .set("padding", "0")
-                .set("cursor", "pointer")
-                .set("transition", "all 0.2s");
+    private Div createSeat(int seatId) {
+        Div seat = new Div();
+        seat.addClassName("seat");
+        seat.setText(String.valueOf(seatId));
 
-        // Set initial state
         if (reservedSeats.contains(seatId)) {
-            seatButton.setText("✗");
-            seatButton.getStyle()
-                    .set("background-color", "#8b0000")
-                    .set("color", "#ffffff")
-                    .set("border-color", "#660000")
-                    .set("cursor", "not-allowed");
-            seatButton.setEnabled(false);
-        } else {
-            seatButton.setText(String.valueOf(seatId));
-            seatButton.getStyle()
-                    .set("background-color", "#2a7f2a")
-                    .set("color", "#ffffff")
-                    .set("border-color", "#1a5f1a");
+            seat.addClassName("seat-reserved");
+            seat.setText("✗");
+            return seat;
         }
 
-        seatButton.addClickListener(e -> {
-            if (!reservedSeats.contains(seatId)) {
-                if (selectedSeats.contains(seatId)) {
-                    // Deselect
-                    selectedSeats.remove(seatId);
-                    seatButton.setText(String.valueOf(seatId));
-                    seatButton.getStyle()
-                            .set("background-color", "#2a7f2a")
-                            .set("border-color", "#1a5f1a")
-                            .set("color", "#ffffff");
-                } else {
-                    // Select
-                    selectedSeats.add(seatId);
-                    seatButton.getStyle()
-                            .set("background-color", "#d4af37")
-                            .set("border-color", "#b8941f")
-                            .set("color", "#000000");
-                }
-                updateSummary();
+        seat.addClassName("seat-available");
+        seat.addClickListener(e -> {
+            if (selectedSeats.remove(seatId)) {
+                seat.removeClassName("seat-selected");
+            } else {
+                selectedSeats.add(seatId);
+                seat.addClassName("seat-selected");
             }
+            updateSummary();
         });
 
-        return seatButton;
+        return seat;
     }
+
 
     private HorizontalLayout createLegend() {
         HorizontalLayout legend = new HorizontalLayout();
@@ -462,21 +423,25 @@ public class BookingView extends VerticalLayout implements BeforeEnterObserver {
         }
 
         try {
+            int reservedCount = selectedSeats.size();
+            double totalPrice = (double) reservedCount * PRICE_PER_SEAT;
             ticketService.reserveMultipleTickets(currentProjection.getId(), currentUser, selectedSeats);
             showNotification("Tickets reserved successfully!", "success");
 
-            // Show confirmation dialog
+            // Reload seat state so the booked seats are shown as reserved and the selection is cleared
+            selectedSeats.clear();
+            reservedSeats = seatDAO.getReservedSeats(currentProjection.getId());
+            removeAll();
+            buildBookingUI(currentProjection);
+
             Dialog confirmDialog = new Dialog();
             confirmDialog.setHeaderTitle("Reservation Confirmed");
 
             VerticalLayout dialogLayout = new VerticalLayout();
             dialogLayout.add(
                     new Paragraph("Your tickets have been successfully reserved!"),
-                    new Paragraph(String.format("Total seats: %d", selectedSeats.size())),
-                    new Paragraph(String.format(
-                            "Total price: %.2f BGN",
-                            selectedSeats.size() * PRICE_PER_SEAT
-                    ))
+                    new Paragraph(String.format("Total seats: %d", reservedCount)),
+                    new Paragraph(String.format("Total price: %.2f BGN", totalPrice))
             );
 
             Button goBackButton = new Button("Back to Movie", e -> {
@@ -501,24 +466,9 @@ public class BookingView extends VerticalLayout implements BeforeEnterObserver {
     }
 
     private void showNotification(String message, String type) {
-        Div notification = new Div();
-        notification.setText(message);
-        notification.getStyle()
-                .set("padding", "1em")
-                .set("margin", "1em 0")
-                .set("border-radius", "4px")
-                .set("color", "#ffffff");
-
-        if ("success".equals(type)) {
-            notification.getStyle()
-                    .set("background-color", "#2a7f2a")
-                    .set("border", "1px solid #1a5f1a");
-        } else {
-            notification.getStyle()
-                    .set("background-color", "#8b0000")
-                    .set("border", "1px solid #660000");
-        }
-
-        add(notification);
+        Notification notification = Notification.show(message, 4000, Notification.Position.TOP_CENTER);
+        notification.addThemeVariants("success".equals(type)
+                ? NotificationVariant.LUMO_SUCCESS
+                : NotificationVariant.LUMO_ERROR);
     }
 }

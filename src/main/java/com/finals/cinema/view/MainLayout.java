@@ -6,7 +6,6 @@ import com.finals.cinema.service.EmailService;
 import com.finals.cinema.repository.ConfirmationTokenRepository;
 import com.finals.cinema.service.MovieService;
 import com.finals.cinema.service.UserService;
-import com.finals.cinema.util.Constants;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.applayout.DrawerToggle;
@@ -114,7 +113,7 @@ public class MainLayout extends AppLayout {
 
     private void createDrawer(UserService userService) {
         VerticalLayout drawerLayout = new VerticalLayout(
-                new RouterLink("Buy Tickets", TicketView.class),
+                new RouterLink("My Tickets", TicketView.class),
                 new RouterLink("Cinemas", CinemaView.class),
                 new RouterLink("Projections", ProjectionView.class)
         );

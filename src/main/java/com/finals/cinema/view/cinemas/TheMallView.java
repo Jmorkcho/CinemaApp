@@ -1,7 +1,8 @@
 package com.finals.cinema.view.cinemas;
 
+import com.finals.cinema.repository.CinemaRepository;
+import com.finals.cinema.repository.ProjectionRepository;
 import com.finals.cinema.view.MainLayout;
-import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.*;
@@ -11,7 +12,8 @@ import com.vaadin.flow.router.Route;
 @Route(value = "cinemas/the_mall", layout = MainLayout.class)
 @PageTitle("Кино Арена The Mall")
 public class TheMallView extends AbstractCinemaView {
-    public TheMallView() {
+    public TheMallView(ProjectionRepository projectionRepository, CinemaRepository cinemaRepository) {
+        super(projectionRepository, cinemaRepository, "KinoTheMall");
         addHeader();
         initializeTabs();
         populateTabs();
@@ -53,7 +55,7 @@ public class TheMallView extends AbstractCinemaView {
         moviesTabContent.add(
                 new H2("ТЕКУЩА ПРОГРАМА"),
                 new Paragraph("Актуални филми и прожекции в The Mall:"),
-                createMovieList() // Implement this method
+                createMovieList()
         );
     }
 
@@ -71,9 +73,5 @@ public class TheMallView extends AbstractCinemaView {
                 new Paragraph("Телефон: 02 4047 142"),
                 new Paragraph("Email: corporate@cinema-themall.bg")
         );
-    }
-
-    private Component createMovieList() {
-        return new Paragraph("Списък с филми ще бъде показан тук");
     }
 }

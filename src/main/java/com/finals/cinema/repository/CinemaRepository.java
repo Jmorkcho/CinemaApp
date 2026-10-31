@@ -12,6 +12,7 @@ public interface CinemaRepository extends JpaRepository<Cinema, Integer> {
 
     List<Cinema> findAllByCity(String city);
     boolean existsByCityAndName(String city, String name);
+    Optional<Cinema> findFirstByNameIgnoreCase(String name);
 
 
 

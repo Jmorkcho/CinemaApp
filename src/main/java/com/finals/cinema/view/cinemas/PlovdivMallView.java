@@ -1,8 +1,8 @@
 package com.finals.cinema.view.cinemas;
 
-import com.finals.cinema.view.cinemas.AbstractCinemaView;
+import com.finals.cinema.repository.CinemaRepository;
+import com.finals.cinema.repository.ProjectionRepository;
 import com.finals.cinema.view.MainLayout;
-import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.*;
@@ -12,7 +12,8 @@ import com.vaadin.flow.router.Route;
 @Route(value = "cinemas/plovdiv_mall", layout = MainLayout.class)
 @PageTitle("Кино Арена Мол Марково тепе")
 public class PlovdivMallView extends AbstractCinemaView {
-    public PlovdivMallView() {
+    public PlovdivMallView(ProjectionRepository projectionRepository, CinemaRepository cinemaRepository) {
+        super(projectionRepository, cinemaRepository, "KinoMallPlovdiv");
         addHeader();
         initializeTabs();
         populateTabs();
@@ -55,7 +56,7 @@ public class PlovdivMallView extends AbstractCinemaView {
         moviesTabContent.add(
                 new H2("ФИЛМОВА ПРОГРАМА"),
                 new Paragraph("Актуални прожекции в Пловдив:"),
-                createMovieList() // Implement this method
+                createMovieList()
         );
     }
 
@@ -73,9 +74,5 @@ public class PlovdivMallView extends AbstractCinemaView {
                 new Paragraph("Телефон: 032 123 456"),
                 new Paragraph("Email: events@cinema-plovdiv.bg")
         );
-    }
-
-    private Component createMovieList() {
-        return new Paragraph("Списък с филми ще бъде показан тук");
     }
 }

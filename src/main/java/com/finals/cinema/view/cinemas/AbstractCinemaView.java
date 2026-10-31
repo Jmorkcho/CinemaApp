@@ -1,19 +1,47 @@
 package com.finals.cinema.view.cinemas;
 
+import com.finals.cinema.model.entity.Projection;
+import com.finals.cinema.repository.CinemaRepository;
+import com.finals.cinema.repository.ProjectionRepository;
+import com.finals.cinema.view.components.CinemaProgramme;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.html.*;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.Tabs;
 
+import java.time.LocalDateTime;
+import java.util.List;
+
 public abstract class AbstractCinemaView extends VerticalLayout {
     protected VerticalLayout aboutTabContent;
     protected VerticalLayout moviesTabContent;
     protected VerticalLayout businessTabContent;
 
-    public AbstractCinemaView() {
+    private final ProjectionRepository projectionRepository;
+    private final CinemaRepository cinemaRepository;
+    private final String cinemaName;
+
+    /**
+     * @param cinemaName name of the matching row in the cinemas table, used to load the projections
+     */
+    protected AbstractCinemaView(ProjectionRepository projectionRepository,
+                                 CinemaRepository cinemaRepository,
+                                 String cinemaName) {
+        this.projectionRepository = projectionRepository;
+        this.cinemaRepository = cinemaRepository;
+        this.cinemaName = cinemaName;
         setPadding(true);
         setSpacing(false);
+    }
+
+    protected Component createMovieList() {
+        List<Projection> upcoming = cinemaRepository.findFirstByNameIgnoreCase(cinemaName)
+                .map(cinema -> projectionRepository
+                        .findByHall_Cinema_IdAndStartAtGreaterThanEqualOrderByStartAtAsc(
+                                cinema.getId(), LocalDateTime.now()))
+                .orElse(List.of());
+        return new CinemaProgramme(upcoming);
     }
 
     protected void initializeTabs() {

@@ -1,11 +1,9 @@
 package com.finals.cinema.model.entity;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.*;
 
 import jakarta.persistence.*;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Getter

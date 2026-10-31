@@ -7,6 +7,7 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -53,6 +54,7 @@ public class MainView extends VerticalLayout {
     private Component createNowShowingSection(MovieRepository movieRepository) {
         FlexLayout movieGrid = new FlexLayout();
         movieGrid.setFlexWrap(FlexWrap.WRAP);
+        movieGrid.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
         movieGrid.getStyle().set("gap", "1em");
 
         List<Movie> movies = movieRepository.findAll();

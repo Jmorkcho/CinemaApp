@@ -1,7 +1,6 @@
 package com.finals.cinema.model.DTO;
 
 import com.finals.cinema.model.entity.User;
-import com.finals.cinema.model.entity.UserStatus;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;

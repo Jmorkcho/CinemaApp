@@ -1,7 +1,5 @@
 package com.finals.cinema.configuration;
 
-import com.finals.cinema.view.MainView;
-import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.PageTitle;

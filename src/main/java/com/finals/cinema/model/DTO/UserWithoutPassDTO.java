@@ -2,7 +2,6 @@ package com.finals.cinema.model.DTO;
 
 import com.finals.cinema.model.entity.Ticket;
 import com.finals.cinema.model.entity.User;
-import com.finals.cinema.model.entity.UserStatus;
 import lombok.*;
 
 import java.util.ArrayList;
