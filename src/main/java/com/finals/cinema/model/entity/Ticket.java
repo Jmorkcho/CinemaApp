@@ -23,7 +23,7 @@ public class Ticket {
     @JoinColumn(name = "projection_id")
     private Projection projection;
 
-    @Column(name = "seat_number")
+    @Column(name = "seat")
     private int seatNumber;
 
     @Column(name = "purchased_at")

@@ -25,7 +25,7 @@ public class Projection {
     @Column(name = "end_time")
     private LocalDateTime endAt;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "hall_id")
     private Hall hall;
 }

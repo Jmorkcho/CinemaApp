@@ -24,7 +24,7 @@ public class Hall {
     @Column(name = "capacity")
     private int capacity;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "cinema_id")
     private Cinema cinema;
 

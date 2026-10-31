@@ -66,7 +66,7 @@ public class LoginView extends VerticalLayout implements BeforeEnterObserver {
         Button loginButton = new Button("Login", event ->
         {
             try {
-                if (!username.getValue().isBlank() || !password.getValue().isBlank())
+                if (username.getValue().isBlank() || password.getValue().isBlank())
                 {
                     log.error("Username or password is blank");
                     throw new IllegalArgumentException("Please fill all the necessary fields");
