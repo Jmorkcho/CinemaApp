@@ -31,12 +31,12 @@ public class RegisterDTO {
 
     @NotBlank(message = "Please fill all necessary fields")
     @NotNull(message = "Please fill all necessary fields")
-    @Pattern(regexp = "^[A-Z][-a-zA-Z]+$",message = "Name must contain only letters")
+    @Pattern(regexp = "^[A-Z][-a-zA-Z]+$",message = "Name must start with a capital letter and contain only letters (at least 2)")
     private String firstName;
 
     @NotBlank(message = "Please fill all necessary fields")
     @NotNull(message = "Please fill all necessary fields")
-    @Pattern(regexp = "^[A-Z][-a-zA-Z]+$",message = "Name must contain only letters")
+    @Pattern(regexp = "^[A-Z][-a-zA-Z]+$",message = "Name must start with a capital letter and contain only letters (at least 2)")
     private String lastName;
 
     @Min(value = 1,message = "Age cannot be less than 1")

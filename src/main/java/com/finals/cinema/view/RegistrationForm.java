@@ -7,7 +7,9 @@ import com.finals.cinema.model.entity.UserStatus;
 import com.finals.cinema.repository.ConfirmationTokenRepository;
 import com.finals.cinema.service.UserService;
 import com.finals.cinema.util.exceptions.NotFoundException;
+import com.vaadin.flow.component.HasValidation;
 import com.vaadin.flow.component.HasValueAndElement;
+import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -51,6 +53,8 @@ public class RegistrationForm extends FormLayout {
 
     private Button submitButton;
 
+    private final Div formError = new Div();
+
     private Select<String> status;
 
     private DatePicker datePicker;
@@ -89,9 +93,17 @@ public class RegistrationForm extends FormLayout {
 
         submitButton = new Button("Register", event ->
         {
+            clearErrors();
             try {
-                    if (!password.equals(passwordConfirm)) {
-                        throw new IllegalArgumentException("Passwords must match");
+                    if (datePicker.getValue() == null) {
+                        datePicker.setErrorMessage("Please select your date of birth");
+                        datePicker.setInvalid(true);
+                        return;
+                    }
+                    if (!password.getValue().equals(passwordConfirm.getValue())) {
+                        passwordConfirm.setErrorMessage("Passwords must match");
+                        passwordConfirm.setInvalid(true);
+                        return;
                     }
                     UserWithoutPassDTO register = register(userService);
                     sendConfirmationTokenJD(confirmationTokenRepository, register, emailService);
@@ -100,14 +112,27 @@ public class RegistrationForm extends FormLayout {
                     //popup on register event
                     UI.getCurrent().navigate(MAIN_VIEW_ROUTE);
                     registrationDialog.close();
+            } catch (ConstraintViolationException e) {
+                showViolations(e.getConstraintViolations());
             } catch (Exception e) {
-                Notification.show(e.getMessage(), -1, Notification.Position.BOTTOM_CENTER);
+                formError.setText(e.getMessage() == null ? "Registration failed" : e.getMessage());
+                formError.setVisible(true);
             }
         });
         submitButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 
-        add(title, firstName, lastName, username, email, password, passwordConfirm, status, datePicker, submitButton);
+        formError.getStyle().set("color", "var(--lumo-error-text-color)");
+        formError.setVisible(false);
 
+        firstName.addValueChangeListener(e -> firstName.setInvalid(false));
+        lastName.addValueChangeListener(e -> lastName.setInvalid(false));
+        username.addValueChangeListener(e -> username.setInvalid(false));
+        email.addValueChangeListener(e -> email.setInvalid(false));
+        password.addValueChangeListener(e -> password.setInvalid(false));
+        passwordConfirm.addValueChangeListener(e -> passwordConfirm.setInvalid(false));
+        datePicker.addValueChangeListener(e -> datePicker.setInvalid(false));
+
+        add(title, firstName, lastName, username, email, password, passwordConfirm, status, datePicker, formError, submitButton);
         // Max width of the Form
         setMaxWidth("600px");
 
@@ -122,7 +147,38 @@ public class RegistrationForm extends FormLayout {
         setColspan(title, 2);
         setColspan(username, 2);
         setColspan(email, 2);
+        setColspan(formError, 2);
         setColspan(submitButton, 2);
+    }
+
+    private void clearErrors() {
+        for (HasValidation field : new HasValidation[]{firstName, lastName, username, email, password, passwordConfirm, datePicker}) {
+            field.setInvalid(false);
+        }
+        formError.setVisible(false);
+    }
+
+    private void showViolations(Set<ConstraintViolation<?>> violations) {
+        for (ConstraintViolation<?> violation : violations) {
+            String property = violation.getPropertyPath().toString();
+            HasValidation target = switch (property) {
+                case "firstName" -> firstName;
+                case "lastName" -> lastName;
+                case "username" -> username;
+                case "email" -> email;
+                case "password" -> password;
+                case "confirmPassword" -> passwordConfirm;
+                case "age" -> datePicker;
+                default -> null;
+            };
+            if (target == null) {
+                formError.setText(violation.getMessage());
+                formError.setVisible(true);
+            } else if (!target.isInvalid()) {
+                target.setErrorMessage(violation.getMessage());
+                target.setInvalid(true);
+            }
+        }
     }
 
     private void sendConfirmationTokenJD(ConfirmationTokenRepository confirmationTokenRepository,

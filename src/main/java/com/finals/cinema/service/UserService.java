@@ -54,7 +54,7 @@ public class UserService {
 
     @Transactional
     public UserWithoutPassDTO registerUser(RegisterDTO registerDTO) {
-        if (registerDTO != null) {
+        if (registerDTO == null) {
             throw new IllegalArgumentException("Register form cannot be null");
         }
         if (userRepository.existsByEmailOrUsername(registerDTO.getEmail(), registerDTO.getUsername())) {
@@ -69,7 +69,7 @@ public class UserService {
         user.setLastName(registerDTO.getLastName());
         user.setAge(registerDTO.getAge());
         user.setRole(UserRole.USER);
-        user.setStatus(UserStatus.valueOf(registerDTO.getStatus()));
+        user.setStatus(UserStatus.valueOf(registerDTO.getStatus().toUpperCase()));
         user.setCreatedAt(LocalDateTime.now());
         user.setTickets(new ArrayList<>());
         user.setActive(false);
@@ -80,11 +80,24 @@ public class UserService {
     }
 
 
+    @Transactional
+    public void confirmAccount(String token) {
+        ConfirmationToken confirmationToken = confirmationTokenRepository.findByConfirmationToken(token)
+                .orElseThrow(() -> new NotFoundException("This confirmation link is invalid or has already been used"));
+        User user = confirmationToken.getUser();
+        user.setActive(true);
+        userRepository.save(user);
+        confirmationTokenRepository.delete(confirmationToken);
+    }
+
     public UserWithoutTicketAndPassDTO logIn(String username, String password) {
         User user = userRepository.findByUsername(username)
-          .orElseThrow(() -> new NotFoundException("User with username " + username + "is not found"));
+          .orElseThrow(() -> new NotFoundException("User with username " + username + " is not found"));
 
         if (passwordEncoder.matches(password, user.getPassword())) {
+            if (!user.isActive()) {
+                throw new IllegalArgumentException("Please confirm your account using the link we emailed you");
+            }
 
             // Create an Authentication object
             Authentication authentication = new UsernamePasswordAuthenticationToken(
