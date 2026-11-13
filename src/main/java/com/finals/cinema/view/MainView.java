@@ -5,6 +5,7 @@ import com.finals.cinema.repository.MovieRepository;
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
@@ -52,34 +53,33 @@ public class MainView extends VerticalLayout {
     }
 
     private Component createNowShowingSection(MovieRepository movieRepository) {
-        FlexLayout movieGrid = new FlexLayout();
-        movieGrid.setFlexWrap(FlexWrap.WRAP);
-        movieGrid.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
-        movieGrid.getStyle().set("gap", "1em");
+        Div movieGrid = new Div();
+        movieGrid.addClassName("movie-grid");
 
-        List<Movie> movies = movieRepository.findAll();
-        for (Movie movie : movies) {
-            VerticalLayout card = new VerticalLayout();
-            card.getStyle().set("background", "rgba(30,30,30,0.85)");
-            card.getStyle().set("padding", "1em");
-            card.getStyle().set("borderRadius", "8px");
-            card.getStyle().set("minWidth", "180px");
-            card.getStyle().set("maxWidth", "200px");
-            card.getStyle().set("margin", "0.5em");
-            card.setAlignItems(Alignment.CENTER);
-            card.getStyle().set("cursor", "pointer");
+        for (Movie movie : movieRepository.findAll()) {
+            Div card = new Div();
             card.addClassName("movie-card");
 
+            Div posterBox = new Div();
+            posterBox.addClassName("movie-card-poster");
+            String poster = movie.getPoster();
+            if (poster != null && !poster.isBlank()) {
+                Image image = new Image(poster, movie.getTitle());
+                image.getElement().setAttribute("loading", "lazy");
+                posterBox.add(image);
+            } else {
+                posterBox.add(new Span("No poster"));
+            }
+
             Span title = new Span(movie.getTitle());
-            card.add(title);
+            title.addClassName("movie-card-title");
+            card.add(posterBox, title);
 
             card.addClickListener(e -> getUI().ifPresent(ui -> ui.navigate("movie-details/" + movie.getId())));
-
             movieGrid.add(card);
         }
         return movieGrid;
     }
-
     private void configureGrid(MovieRepository movieRepository) {
         List<Movie> movies = movieRepository.findAll();
         cinemaGrid.addColumn(i -> i).setHeader("Num");

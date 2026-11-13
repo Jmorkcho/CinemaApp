@@ -64,8 +64,8 @@ public class MovieDetailsView extends VerticalLayout implements BeforeEnterObser
     private void buildMovieDetailsUI(Movie movie) {
         // Set dark background for entire page
         getStyle()
-                .set("background-color", "#1a1a1a")
-                .set("color", "#ffffff")
+                .set("background-color", "var(--c-page)")
+                .set("color", "var(--c-text)")
                 .set("min-height", "100vh");
         
         // Trailer Section
@@ -109,14 +109,14 @@ public class MovieDetailsView extends VerticalLayout implements BeforeEnterObser
         layout.setSpacing(false);
         layout.setPadding(true);
         layout.getStyle()
-                .set("background-color", "#0a0a0a")
+                .set("background-color", "var(--c-header)")
                 .set("padding", "2em 0")
                 .set("display", "flex")
                 .set("align-items", "center");
 
         H1 title = new H1(movie.getTitle());
         title.getStyle()
-                .set("color", "#ffffff")
+                .set("color", "var(--c-text)")
                 .set("margin", "0 0 1em 0")
                 .set("text-align", "center");
         layout.add(title);
@@ -128,7 +128,7 @@ public class MovieDetailsView extends VerticalLayout implements BeforeEnterObser
             layout.add(new Html(iframeHtml));
         } else {
             Paragraph noTrailer = new Paragraph("No trailer available");
-            noTrailer.getStyle().set("color", "#888888");
+            noTrailer.getStyle().set("color", "var(--c-text-muted)");
             layout.add(noTrailer);
         }
 
@@ -157,11 +157,11 @@ public class MovieDetailsView extends VerticalLayout implements BeforeEnterObser
             placeholder.setWidth("280px");
             placeholder.setHeight("400px");
             placeholder.getStyle()
-                    .set("background-color", "#2a2a2a")
+                    .set("background-color", "var(--c-card)")
                     .set("display", "flex")
                     .set("align-items", "center")
                     .set("justify-content", "center")
-                    .set("color", "#888888")
+                    .set("color", "var(--c-text-muted)")
                     .set("border-radius", "8px");
             layout.add(placeholder);
         }
@@ -174,7 +174,7 @@ public class MovieDetailsView extends VerticalLayout implements BeforeEnterObser
         layout.setSpacing(true);
         layout.setPadding(true);
         layout.getStyle()
-                .set("background-color", "#2a2a2a")
+                .set("background-color", "var(--c-card)")
                 .set("border-radius", "8px")
                 .set("padding", "1.5em");
 
@@ -217,18 +217,18 @@ public class MovieDetailsView extends VerticalLayout implements BeforeEnterObser
             creditsSection.getStyle()
                     .set("margin-top", "1.5em")
                     .set("padding-top", "1em")
-                    .set("border-top", "1px solid #3a3a3a");
+                    .set("border-top", "1px solid var(--c-border)");
             
             H4 creditsHeader = new H4("CREDITS");
             creditsHeader.getStyle()
-                    .set("color", "#888888")
+                    .set("color", "var(--c-text-muted)")
                     .set("font-size", "0.9em")
                     .set("margin", "0 0 0.5em 0");
             creditsSection.add(creditsHeader);
 
             Paragraph actors = new Paragraph("Actors: " + movie.getLeadingActor());
             actors.getStyle()
-                    .set("color", "#cccccc")
+                    .set("color", "var(--c-text-soft)")
                     .set("margin", "0");
             creditsSection.add(actors);
             
@@ -244,7 +244,7 @@ public class MovieDetailsView extends VerticalLayout implements BeforeEnterObser
         Div labelDiv = new Div();
         labelDiv.setText(label);
         labelDiv.getStyle()
-                .set("color", "#888888")
+                .set("color", "var(--c-text-muted)")
                 .set("font-size", "0.85em")
                 .set("margin-bottom", "0.25em")
                 .set("font-weight", "600");
@@ -252,7 +252,7 @@ public class MovieDetailsView extends VerticalLayout implements BeforeEnterObser
         Div valueDiv = new Div();
         valueDiv.setText(value);
         valueDiv.getStyle()
-                .set("color", "#ffffff")
+                .set("color", "var(--c-text)")
                 .set("font-size", "0.95em");
         
         item.add(labelDiv, valueDiv);
@@ -270,16 +270,16 @@ public class MovieDetailsView extends VerticalLayout implements BeforeEnterObser
         if (movie.getPlot() != null && !movie.getPlot().isEmpty()) {
             H3 synopsisHeader = new H3("SYNOPSIS");
             synopsisHeader.getStyle()
-                    .set("color", "#ffffff")
+                    .set("color", "var(--c-text)")
                     .set("margin", "0 0 1em 0")
                     .set("font-size", "1.2em");
             layout.add(synopsisHeader);
 
             Paragraph synopsis = new Paragraph(movie.getPlot());
             synopsis.getStyle()
-                    .set("color", "#cccccc")
+                    .set("color", "var(--c-text-soft)")
                     .set("line-height", "1.6")
-                    .set("background-color", "#2a2a2a")
+                    .set("background-color", "var(--c-card)")
                     .set("padding", "1.5em")
                     .set("border-radius", "8px");
             layout.add(synopsis);
@@ -296,11 +296,11 @@ public class MovieDetailsView extends VerticalLayout implements BeforeEnterObser
         layout.getStyle()
                 .set("max-width", "1200px")
                 .set("margin", "0 auto")
-                .set("background-color", "#1a1a1a");
+                .set("background-color", "var(--c-page)");
 
         H3 programmesHeader = new H3("PROGRAM");
         programmesHeader.getStyle()
-                .set("color", "#ffffff")
+                .set("color", "var(--c-text)")
                 .set("font-size", "1.5em")
                 .set("font-weight", "bold")
                 .set("margin", "1em 0 1em 0")
@@ -315,7 +315,7 @@ public class MovieDetailsView extends VerticalLayout implements BeforeEnterObser
         if (projections.isEmpty()) {
             Paragraph noProjections = new Paragraph("No projections available");
             noProjections.getStyle()
-                    .set("color", "#888888")
+                    .set("color", "var(--c-text-muted)")
                     .set("padding", "2em")
                     .set("text-align", "center");
             layout.add(noProjections);
@@ -335,7 +335,7 @@ public class MovieDetailsView extends VerticalLayout implements BeforeEnterObser
         if (uniqueDates.isEmpty()) {
             Paragraph noProjections = new Paragraph("No upcoming projections");
             noProjections.getStyle()
-                    .set("color", "#888888")
+                    .set("color", "var(--c-text-muted)")
                     .set("padding", "2em")
                     .set("text-align", "center");
             layout.add(noProjections);
@@ -352,39 +352,50 @@ public class MovieDetailsView extends VerticalLayout implements BeforeEnterObser
         dateButtonsLayout.setWidthFull();
         dateButtonsLayout.setSpacing(true);
         dateButtonsLayout.getStyle()
-                .set("overflow-x", "auto")
+                .set("overflow", "visible")
+                .set("flex-wrap", "nowrap")
+                .set("gap", "0.5em")
                 .set("padding-bottom", "1em")
                 .set("margin-bottom", "1.5em")
-                .set("border-bottom", "2px solid #3a3a3a");
+                .set("border-bottom", "2px solid var(--c-border)");
 
         LocalDate[] selectedDate = {uniqueDates.get(0)};
 
-        DateTimeFormatter dayFormatter = DateTimeFormatter.ofPattern("EEEE");
+        DateTimeFormatter dayFormatter = DateTimeFormatter.ofPattern("EEE", java.util.Locale.ENGLISH);
         DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd.MM");
 
         for (LocalDate date : uniqueDates) {
-            Button dateButton = new Button(
-                    dayFormatter.format(date).toUpperCase() + "\n" +
-                    dateFormatter.format(date)
-            );
-            dateButton.setWidth("90px");
-            dateButton.setHeight("80px");
+            Span dayLabel = new Span(dayFormatter.format(date).toUpperCase());
+            dayLabel.getStyle().set("font-size", "1.05em").set("font-weight", "700");
+            Span dateLabel = new Span(dateFormatter.format(date));
+            dateLabel.getStyle().set("font-size", "0.85em").set("opacity", "0.85");
+            Div buttonContent = new Div(dayLabel, dateLabel);
+            buttonContent.getStyle()
+                    .set("display", "flex")
+                    .set("flex-direction", "column")
+                    .set("align-items", "center")
+                    .set("line-height", "1.3");
+            Button dateButton = new Button(buttonContent);
             dateButton.getStyle()
-                    .set("white-space", "pre-wrap")
+                    .set("flex", "1 1 0")
+                    .set("min-width", "0")
+                    .set("height", "64px")
+                    .set("margin", "0")
+                    .set("padding", "0 0.25em")
                     .set("font-weight", "600")
                     .set("font-size", "0.95em")
                     .set("border-radius", "8px")
-                    .set("background-color", "#2a2a2a")
-                    .set("color", "#ffffff")
-                    .set("border", "2px solid #3a3a3a")
+                    .set("background-color", "var(--c-card)")
+                    .set("color", "var(--c-text)")
+                    .set("border", "2px solid var(--c-border)")
                     .set("cursor", "pointer")
                     .set("transition", "all 0.2s");
 
             // Mark first date as selected
             if (date.equals(selectedDate[0])) {
                 dateButton.getStyle()
-                        .set("background-color", "#d32f2f")
-                        .set("border-color", "#d32f2f")
+                        .set("background-color", "var(--c-accent)")
+                        .set("border-color", "var(--c-accent)")
                         .set("color", "#ffffff");
             }
 
@@ -396,14 +407,14 @@ public class MovieDetailsView extends VerticalLayout implements BeforeEnterObser
                         .forEach(btn -> {
                             Button b = (Button) btn;
                             b.getStyle()
-                                    .set("background-color", "#2a2a2a")
-                                    .set("border-color", "#3a3a3a");
+                                    .set("background-color", "var(--c-card)")
+                                    .set("border-color", "var(--c-border)");
                         });
                 
                 // Add selection to clicked button
                 dateButton.getStyle()
-                        .set("background-color", "#d32f2f")
-                        .set("border-color", "#d32f2f");
+                        .set("background-color", "var(--c-accent)")
+                        .set("border-color", "var(--c-accent)");
                 
                 // Update projections display
                 selectedDate[0] = finalDate;
@@ -446,11 +457,11 @@ public class MovieDetailsView extends VerticalLayout implements BeforeEnterObser
                 // Create cinema section with dark theme
                 VerticalLayout cinemaLayout = new VerticalLayout();
                 cinemaLayout.getStyle()
-                        .set("background-color", "#2a2a2a")
+                        .set("background-color", "var(--c-card)")
                         .set("padding", "1.5em")
                         .set("margin-bottom", "1em")
                         .set("border-radius", "8px")
-                        .set("border-left", "4px solid #d32f2f");
+                        .set("border-left", "4px solid var(--c-accent)");
                 cinemaLayout.setSpacing(true);
                 cinemaLayout.setWidthFull();
                 cinemaLayout.setPadding(false);
@@ -460,7 +471,7 @@ public class MovieDetailsView extends VerticalLayout implements BeforeEnterObser
                 H4 cinemaTitle = new H4(cinema.getName());
                 cinemaTitle.getStyle()
                         .set("margin", "0 0 0.5em 0")
-                        .set("color", "#ffffff")
+                        .set("color", "var(--c-text)")
                         .set("font-size", "1.1em")
                         .set("font-weight", "600");
                 cinemaLayout.add(cinemaTitle);
@@ -468,7 +479,7 @@ public class MovieDetailsView extends VerticalLayout implements BeforeEnterObser
                 // Cinema info
                 Span cinemaInfo = new Span(cinema.getCity());
                 cinemaInfo.getStyle()
-                        .set("color", "#888888")
+                        .set("color", "var(--c-text-muted)")
                         .set("font-size", "0.9em");
                 cinemaLayout.add(cinemaInfo);
 
@@ -490,9 +501,9 @@ public class MovieDetailsView extends VerticalLayout implements BeforeEnterObser
                     projectionButton.getStyle()
                             .set("font-weight", "600")
                             .set("font-size", "1em")
-                            .set("background-color", "#3a3a3a")
-                            .set("color", "#ffffff")
-                            .set("border", "1px solid #4a4a4a")
+                            .set("background-color", "var(--c-border)")
+                            .set("color", "var(--c-text)")
+                            .set("border", "1px solid var(--c-border-strong)")
                             .set("border-radius", "6px")
                             .set("cursor", "pointer")
                             .set("transition", "all 0.2s");
@@ -500,13 +511,13 @@ public class MovieDetailsView extends VerticalLayout implements BeforeEnterObser
                     // Hover effect
                     projectionButton.getElement().addEventListener("mouseenter", e -> {
                         projectionButton.getStyle()
-                                .set("background-color", "#d32f2f")
-                                .set("border-color", "#d32f2f");
+                                .set("background-color", "var(--c-accent)")
+                                .set("border-color", "var(--c-accent)");
                     });
                     projectionButton.getElement().addEventListener("mouseleave", e -> {
                         projectionButton.getStyle()
-                                .set("background-color", "#3a3a3a")
-                                .set("border-color", "#4a4a4a");
+                                .set("background-color", "var(--c-border)")
+                                .set("border-color", "var(--c-border-strong)");
                     });
 
                     // Navigate to booking page when clicked
@@ -526,10 +537,10 @@ public class MovieDetailsView extends VerticalLayout implements BeforeEnterObser
         if (dateProjections.isEmpty()) {
             Paragraph noProjections = new Paragraph("No projections available for this date");
             noProjections.getStyle()
-                    .set("color", "#888888")
+                    .set("color", "var(--c-text-muted)")
                     .set("padding", "2em")
                     .set("text-align", "center")
-                    .set("background-color", "#2a2a2a")
+                    .set("background-color", "var(--c-card)")
                     .set("border-radius", "8px");
             layout.add(noProjections);
         }

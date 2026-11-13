@@ -58,7 +58,6 @@ public class LoginView extends VerticalLayout implements BeforeEnterObserver {
         setSizeFull();
         setAlignItems(Alignment.CENTER);
         setJustifyContentMode(JustifyContentMode.CENTER);
-        getStyle().set("background", "869fcb");
        //login.setAction("login");
         H1 title = new H1("Welcome to Best Cinema");
         var username = new TextField("Username");

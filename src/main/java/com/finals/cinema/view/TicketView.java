@@ -32,14 +32,14 @@ public class TicketView extends VerticalLayout {
         setPadding(true);
         setSpacing(true);
         getStyle()
-                .set("background-color", "#1a1a1a")
-                .set("color", "#ffffff")
+                .set("background-color", "var(--c-page)")
+                .set("color", "var(--c-text)")
                 .set("min-height", "100vh");
 
         // Header
         H1 title = new H1("My Tickets");
         title.getStyle()
-                .set("color", "#ffffff")
+                .set("color", "var(--c-text)")
                 .set("margin-bottom", "1.5em");
         add(title);
 
@@ -47,7 +47,7 @@ public class TicketView extends VerticalLayout {
         User currentUser = VaadinSession.getCurrent().getAttribute(User.class);
         if (currentUser == null) {
             Paragraph notLogged = new Paragraph("Please log in to view your tickets");
-            notLogged.getStyle().set("color", "#888888");
+            notLogged.getStyle().set("color", "var(--c-text-muted)");
             add(notLogged);
             return;
         }
@@ -58,7 +58,7 @@ public class TicketView extends VerticalLayout {
         if (userTickets == null || userTickets.isEmpty()) {
             Paragraph noTickets = new Paragraph("You have no tickets yet.");
             noTickets.getStyle()
-                    .set("color", "#888888")
+                    .set("color", "var(--c-text-muted)")
                     .set("font-size", "1.1em")
                     .set("padding", "2em");
             add(noTickets);
@@ -84,16 +84,16 @@ public class TicketView extends VerticalLayout {
         card.setSpacing(true);
         card.setPadding(true);
         card.getStyle()
-                .set("background-color", "#2a2a2a")
+                .set("background-color", "var(--c-card)")
                 .set("border-radius", "8px")
-                .set("border-left", "4px solid #d32f2f")
+                .set("border-left", "4px solid var(--c-accent)")
                 .set("padding", "1.5em");
 
         // Movie title
         H3 movieTitle = new H3(ticket.getProjection().getMovie().getTitle());
         movieTitle.getStyle()
                 .set("margin", "0 0 0.5em 0")
-                .set("color", "#ffffff");
+                .set("color", "var(--c-text)");
         card.add(movieTitle);
 
         // Cinema and Hall
@@ -103,12 +103,12 @@ public class TicketView extends VerticalLayout {
 
         Span cinema = new Span(ticket.getProjection().getCinema().getName());
         cinema.getStyle()
-                .set("color", "#d4af37")
+                .set("color", "var(--c-gold)")
                 .set("font-weight", "bold");
 
         Span hall = new Span("Hall " + ticket.getProjection().getHall().getNumber());
         hall.getStyle()
-                .set("color", "#888888")
+                .set("color", "var(--c-text-muted)")
                 .set("margin-left", "1em");
 
         cinemaLayout.add(cinema, hall);
@@ -119,7 +119,7 @@ public class TicketView extends VerticalLayout {
                 .format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm"));
         Paragraph projectionInfo = new Paragraph(dateTime);
         projectionInfo.getStyle()
-                .set("color", "#cccccc")
+                .set("color", "var(--c-text-soft)")
                 .set("margin", "0.5em 0")
                 .set("font-size", "0.95em");
         card.add(projectionInfo);
@@ -130,11 +130,11 @@ public class TicketView extends VerticalLayout {
         seatLayout.setDefaultVerticalComponentAlignment(Alignment.CENTER);
 
         Span seatLabel = new Span("Seat:");
-        seatLabel.getStyle().set("color", "#888888");
+        seatLabel.getStyle().set("color", "var(--c-text-muted)");
 
         Span seatNumber = new Span(String.valueOf(ticket.getSeat()));
         seatNumber.getStyle()
-                .set("color", "#d4af37")
+                .set("color", "var(--c-gold)")
                 .set("font-weight", "bold")
                 .set("font-size", "1.2em");
 
@@ -146,7 +146,7 @@ public class TicketView extends VerticalLayout {
                 ticket.getPurchasedAt().format(DateTimeFormatter.ofPattern("dd.MM.yyyy")) : "N/A";
         Paragraph purchasedInfo = new Paragraph("Purchased: " + purchasedDate);
         purchasedInfo.getStyle()
-                .set("color", "#888888")
+                .set("color", "var(--c-text-muted)")
                 .set("font-size", "0.85em")
                 .set("margin", "1em 0 0 0");
         card.add(purchasedInfo);

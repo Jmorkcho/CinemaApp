@@ -23,7 +23,6 @@ public class ConfirmationView extends VerticalLayout implements HasUrlParameter<
         setSizeFull();
         setAlignItems(Alignment.CENTER);
         setJustifyContentMode(JustifyContentMode.CENTER);
-        getStyle().set("background", "869fcb");
         login.setAction("login");
         H1 title = new H1("A confirmation email was sent to " + email);
 

@@ -61,8 +61,8 @@ public class BookingView extends VerticalLayout implements BeforeEnterObserver {
         setPadding(true);
         setSpacing(true);
         getStyle()
-                .set("background-color", "#1a1a1a")
-                .set("color", "#ffffff")
+                .set("background-color", "var(--c-page)")
+                .set("color", "var(--c-text)")
                 .set("min-height", "100vh");
 
         if (projectionId != null) {
@@ -92,9 +92,9 @@ public class BookingView extends VerticalLayout implements BeforeEnterObserver {
         headerLayout.setSpacing(true);
         headerLayout.setPadding(true);
         headerLayout.getStyle()
-                .set("background-color", "#0a0a0a")
+                .set("background-color", "var(--c-header)")
                 .set("margin-bottom", "2em")
-                .set("border-bottom", "2px solid #d32f2f");
+                .set("border-bottom", "2px solid var(--c-accent)");
 
         VerticalLayout headerContent = new VerticalLayout();
         headerContent.setSpacing(false);
@@ -103,7 +103,7 @@ public class BookingView extends VerticalLayout implements BeforeEnterObserver {
         H1 title = new H1(projection.getMovie().getTitle());
         title.getStyle()
                 .set("margin", "0")
-                .set("color", "#ffffff");
+                .set("color", "var(--c-text)");
 
         String projectionInfo = String.format(
                 "%s • Hall %d • %s",
@@ -114,7 +114,7 @@ public class BookingView extends VerticalLayout implements BeforeEnterObserver {
         Paragraph info = new Paragraph(projectionInfo);
         info.getStyle()
                 .set("margin", "0.5em 0 0 0")
-                .set("color", "#888888")
+                .set("color", "var(--c-text-muted)")
                 .set("font-size", "0.95em");
 
         headerContent.add(title, info);
@@ -159,14 +159,14 @@ public class BookingView extends VerticalLayout implements BeforeEnterObserver {
         footerLayout.setPadding(true);
         footerLayout.getStyle()
                 .set("margin-top", "2em")
-                .set("border-top", "1px solid #3a3a3a");
+                .set("border-top", "1px solid var(--c-border)");
 
         Button backButton = new Button("Back to Movie", e -> {
             getUI().ifPresent(ui -> ui.navigate("movie-details/" + projection.getMovie().getId()));
         });
         backButton.getStyle()
-                .set("background-color", "#3a3a3a")
-                .set("color", "#ffffff");
+                .set("background-color", "var(--c-border)")
+                .set("color", "var(--c-text)");
 
         footerLayout.add(backButton);
         add(footerLayout);
@@ -177,7 +177,7 @@ public class BookingView extends VerticalLayout implements BeforeEnterObserver {
         layout.setSpacing(true);
         layout.setPadding(true);
         layout.getStyle()
-                .set("background-color", "#2a2a2a")
+                .set("background-color", "var(--c-card)")
                 .set("border-radius", "8px")
                 .set("padding", "1.5em")
                 .set("box-sizing", "border-box")
@@ -260,7 +260,7 @@ public class BookingView extends VerticalLayout implements BeforeEnterObserver {
         legend.getStyle()
                 .set("margin-top", "2em")
                 .set("padding-top", "1em")
-                .set("border-top", "1px solid #4a4a4a");
+                .set("border-top", "1px solid var(--c-border-strong)");
 
         legend.add(createLegendItem("Available", "#2a7f2a"));
         legend.add(createLegendItem("Selected", "#d4af37"));
@@ -283,7 +283,7 @@ public class BookingView extends VerticalLayout implements BeforeEnterObserver {
 
         Span labelSpan = new Span(label);
         labelSpan.getStyle()
-                .set("color", "#cccccc")
+                .set("color", "var(--c-text-soft)")
                 .set("font-size", "0.9em");
 
         item.add(colorBox, labelSpan);
@@ -295,14 +295,14 @@ public class BookingView extends VerticalLayout implements BeforeEnterObserver {
         layout.setSpacing(true);
         layout.setPadding(true);
         layout.getStyle()
-                .set("background-color", "#2a2a2a")
+                .set("background-color", "var(--c-card)")
                 .set("border-radius", "8px")
-                .set("border", "1px solid #3a3a3a");
+                .set("border", "1px solid var(--c-border)");
 
         H3 summaryTitle = new H3("Order Summary");
         summaryTitle.getStyle()
                 .set("margin", "0 0 1em 0")
-                .set("color", "#ffffff")
+                .set("color", "var(--c-text)")
                 .set("font-size", "1.1em");
         layout.add(summaryTitle);
 
@@ -310,11 +310,11 @@ public class BookingView extends VerticalLayout implements BeforeEnterObserver {
         Div movieInfo = new Div();
         movieInfo.getStyle()
                 .set("padding-bottom", "1em")
-                .set("border-bottom", "1px solid #3a3a3a");
+                .set("border-bottom", "1px solid var(--c-border)");
 
         Span movieTitle = new Span(projection.getMovie().getTitle());
         movieTitle.getStyle()
-                .set("color", "#ffffff")
+                .set("color", "var(--c-text)")
                 .set("font-weight", "bold")
                 .set("display", "block")
                 .set("margin-bottom", "0.5em");
@@ -323,7 +323,7 @@ public class BookingView extends VerticalLayout implements BeforeEnterObserver {
                 projection.getStartAt().format(DateTimeFormatter.ofPattern("HH:mm"))
         );
         movieTime.getStyle()
-                .set("color", "#888888")
+                .set("color", "var(--c-text-muted)")
                 .set("font-size", "0.9em");
 
         movieInfo.add(movieTitle, movieTime);
@@ -332,7 +332,7 @@ public class BookingView extends VerticalLayout implements BeforeEnterObserver {
         // Selected seats display
         selectedSeatsDisplay = new Paragraph("No seats selected");
         selectedSeatsDisplay.getStyle()
-                .set("color", "#d4af37")
+                .set("color", "var(--c-gold)")
                 .set("margin", "1em 0")
                 .set("font-weight", "600");
         layout.add(selectedSeatsDisplay);
@@ -340,7 +340,7 @@ public class BookingView extends VerticalLayout implements BeforeEnterObserver {
         // Price display
         totalPriceDisplay = new Paragraph("Total: 0.00 BGN");
         totalPriceDisplay.getStyle()
-                .set("color", "#d4af37")
+                .set("color", "var(--c-gold)")
                 .set("font-size", "1.2em")
                 .set("font-weight", "bold")
                 .set("margin", "1em 0");
@@ -373,11 +373,11 @@ public class BookingView extends VerticalLayout implements BeforeEnterObserver {
         Div availableInfo = new Div();
         availableInfo.setText(availableCount + " seats available");
         availableInfo.getStyle()
-                .set("color", "#888888")
+                .set("color", "var(--c-text-muted)")
                 .set("font-size", "0.85em")
                 .set("margin-top", "1em")
                 .set("padding-top", "1em")
-                .set("border-top", "1px solid #3a3a3a");
+                .set("border-top", "1px solid var(--c-border)");
         layout.add(availableInfo);
 
         return layout;

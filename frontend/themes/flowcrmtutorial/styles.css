@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 @media all and (max-width: 1100px) {
   .list-view.editing .toolbar,
   .list-view.editing .contact-grid {
@@ -11,9 +12,6 @@ a[highlight] {
     text-decoration: underline;
 }
 
-.status-list-view {
-  background-image: url("images/spider.jpg");
-}
 
 /*.cinema-card:hover {
   background-color: rgba(255, 255, 255, 0.15);
@@ -43,13 +41,58 @@ a[highlight] {
     box-shadow: 0 4px 8px var(--lumo-shade-20pct);
 }
 
+/* Main page: uniform poster cards in a responsive grid */
+.movie-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  gap: 1.25rem;
+  padding: 0.5rem;
+  width: 100%;
+  box-sizing: border-box;
+}
 .movie-card {
-  transition: transform 0.2s, box-shadow 0.2s;
+  display: flex;
+  flex-direction: column;
+  background: var(--c-card);
+  color: var(--c-text);
+  border: 1px solid var(--c-border);
+  border-radius: 10px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
 }
 .movie-card:hover {
-  transform: scale(1.05);
-  box-shadow: 0 8px 24px rgba(0,0,0,0.3);
-  z-index: 2;
+  transform: translateY(-4px);
+  border-color: var(--c-accent);
+  box-shadow: 0 10px 24px rgba(0,0,0,0.3);
+}
+.movie-card-poster {
+  position: relative;
+  aspect-ratio: 2 / 3;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--c-border);
+  color: var(--c-text-muted);
+}
+.movie-card-poster img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.movie-card-title {
+  padding: 0.6rem 0.75rem;
+  font-weight: 600;
+  text-align: center;
+  min-height: 2.6em;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 /* Seat map: shrinks to fit its container and only scrolls below its minimum width */
@@ -140,4 +183,63 @@ vaadin-app-layout > :not([slot]) {
   margin-left: auto;
   margin-right: auto;
   box-sizing: border-box;
+}
+/* Unified typography: one font family for every Lumo and custom element */
+html {
+  --lumo-font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+}
+body, button, input, select, textarea, vaadin-grid, [class*="seat"], .time-chip {
+  font-family: var(--lumo-font-family);
+}
+
+/* App-wide cinema background: subtle spotlight over a deep gradient, fixed while scrolling */
+html:not([theme~="dark"]) {
+  --app-bg: radial-gradient(ellipse at 50% -10%, #ffffff 0%, #f5f5f0 45%, #e4e2d9 100%);
+}
+html[theme~="dark"] {
+  --app-bg: radial-gradient(ellipse at 50% -10%, #2b1d2e 0%, #14141c 50%, #07070b 100%);
+}
+body, vaadin-app-layout {
+  background: var(--app-bg) fixed;
+  background-color: var(--lumo-base-color);
+}
+.status-list-view {
+  background: transparent;
+}
+
+
+/* Semantic palette shared by all views (dark values match the original hardcoded colors) */
+html {
+  --c-page: rgba(20, 20, 28, 0.55);
+  --c-header: rgba(10, 10, 14, 0.85);
+  --c-card: #2a2a2a;
+  --c-border: #3a3a3a;
+  --c-border-strong: #4a4a4a;
+  --c-text: #ffffff;
+  --c-text-soft: #cccccc;
+  --c-text-muted: #888888;
+  --c-accent: #d32f2f;
+  --c-gold: #d4af37;
+}
+html:not([theme~="dark"]) {
+  --c-page: rgba(255, 255, 255, 0.55);
+  --c-header: rgba(255, 255, 255, 0.9);
+  --c-card: #ffffff;
+  --c-border: #d9d7cd;
+  --c-border-strong: #c4c1b4;
+  --c-text: #1f1f24;
+  --c-text-soft: #3d3d45;
+  --c-text-muted: #6b6b73;
+  --c-gold: #9a7b12;
+}
+
+/* Light mode: outline the cards, trailer and page panels that rely on the palette variables */
+html:not([theme~="dark"]) [style*="var(--c-card)"],
+html:not([theme~="dark"]) [style*="var(--c-header)"],
+html:not([theme~="dark"]) [style*="var(--c-page)"] {
+  border: 1px solid var(--c-border);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+html:not([theme~="dark"]) [style*="var(--c-header)"] {
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
 }
