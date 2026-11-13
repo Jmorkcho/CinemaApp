@@ -13,4 +13,6 @@ public interface TicketRepository extends JpaRepository<Ticket, Integer> {
 
     List<ResponseTicketDTO> findAllByOwnerId(int id);
 
+    boolean existsByProjection_Id(int projectionId);
+
 }

@@ -4,6 +4,9 @@ import com.finals.cinema.model.entity.*;
 import com.finals.cinema.repository.*;
 import com.finals.cinema.util.exceptions.NotFoundException;
 import com.finals.cinema.util.exceptions.UnauthorizedException;
+
+import jakarta.transaction.Transactional;
+
 import com.finals.cinema.model.DTO.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -22,6 +25,7 @@ public class ProjectionService {
     private final MovieRepository movieRepository;
     private final CinemaRepository cinemaRepository;
     private final GenreRepository genreRepository;
+    private final TicketRepository ticketRepository;
 
     public ResponseProjectionDTO getProjectionById(int id) {
         Optional<Projection> sProjection = projectionRepository.findById(id);
@@ -31,20 +35,20 @@ public class ProjectionService {
         return new ResponseProjectionDTO(sProjection.get());
     }
 
+    @Transactional
     public ResponseProjectionDTO addProjection(RequestProjectionDTO requestProjectionDTO) {
         Optional<Hall> sHall = hallRepository.findById(requestProjectionDTO.getHallId());
         if (sHall.isEmpty()) {
             throw new NotFoundException("Hall not found");
         }
         Hall hall = sHall.get();
-        if (!projectionValidation(requestProjectionDTO, hall)) {
-            throw new IllegalArgumentException("There is already a projection during this time in the hall");
-        }
         Optional<Movie> sMovie = movieRepository.findById(requestProjectionDTO.getMovieId());
         if (sMovie.isEmpty()) {
             throw new NotFoundException("Movie with that Id does not exist");
         }
         Movie movie = sMovie.get();
+        validateNoOverlap(hall, requestProjectionDTO.getStartAt(),
+                requestProjectionDTO.getStartAt().plusMinutes(movie.getLength()), null);
         Projection projection = new Projection();
         projection.setMovie(movie);
         projection.setHall(hall);
@@ -63,21 +67,30 @@ public class ProjectionService {
 //        return sProjection.get().getReservedSeats(projectionId);
 //    }
 
-    private boolean projectionValidation(RequestProjectionDTO requestProjectionDTO, Hall hall) {
-        List<Projection> projections = projectionRepository.findByHall(hall);
-        for (Projection p : projections) {
-            if (isBetween(p.getStartAt(), p.getEndAt(), requestProjectionDTO.getStartAt())) {
-                throw new IllegalArgumentException("There is already a projection during this time");
+    private void validateNoOverlap(Hall hall, LocalDateTime start, LocalDateTime end, Integer excludeProjectionId) {
+        for (Projection p : projectionRepository.findByHall(hall)) {
+            if (excludeProjectionId != null && excludeProjectionId.equals(p.getId())) {
+                continue;
+            }
+            if (start.isBefore(p.getEndAt()) && end.isAfter(p.getStartAt())) {
+                throw new IllegalArgumentException("There is already a projection during this time in the hall");
             }
         }
-        return true;
     }
 
-    // работи inclussive
-    private boolean isBetween(LocalDateTime start, LocalDateTime end, LocalDateTime date) {
-        return start.compareTo(date) * date.compareTo(end) >= 0;
+    public List<Projection> getAllProjections() {
+        return projectionRepository.findAll(org.springframework.data.domain.Sort.by("startAt"));
     }
 
+    public void deleteProjection(int projectionId) {
+        if (!projectionRepository.existsById(projectionId)) {
+            throw new NotFoundException("No projection with that id");
+        }
+        if (ticketRepository.existsByProjection_Id(projectionId)) {
+            throw new IllegalArgumentException("Cannot delete a projection that already has sold tickets");
+        }
+        projectionRepository.deleteById(projectionId);
+    }
     public ResponseProjectionDTO removeProjection(int projectionId, int userId) throws UnauthorizedException {
         Optional<Projection> sProjection = projectionRepository.findById(projectionId);
         if (sProjection.isEmpty()) {
@@ -135,14 +148,14 @@ public class ProjectionService {
             throw new NotFoundException("Hall not found");
         }
         Hall hall = sHall.get();
-        if (!projectionValidation(requestProjectionDTO, hall)) {
-            throw new IllegalArgumentException("There is already a projection during this time in the hall");
-        }
         Optional<Movie> sMovie = movieRepository.findById(requestProjectionDTO.getMovieId());
         if (sMovie.isEmpty()) {
             throw new NotFoundException("Movie with that id does not exist");
         }
-        Projection projection = projectionRepository.findById(projectionId).get();
+        validateNoOverlap(hall, requestProjectionDTO.getStartAt(),
+                requestProjectionDTO.getStartAt().plusMinutes(sMovie.get().getLength()), projectionId);
+        Projection projection = projectionRepository.findById(projectionId)
+                .orElseThrow(() -> new NotFoundException("No projection with that id"));
         projection.setHall(sHall.get());
         projection.setMovie(sMovie.get());
         projection.setStartAt(requestProjectionDTO.getStartAt());

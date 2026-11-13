@@ -103,14 +103,6 @@ public class MainLayout extends AppLayout {
 
     }
 
-    private void getAllCinemas() {
-
-    }
-
-    private void getWhatIsOn() {
-
-    }
-
     private void createDrawer(UserService userService) {
         VerticalLayout drawerLayout = new VerticalLayout(
                 new RouterLink("My Tickets", TicketView.class),

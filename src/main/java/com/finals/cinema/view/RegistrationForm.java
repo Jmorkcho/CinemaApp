@@ -80,7 +80,7 @@ public class RegistrationForm extends FormLayout {
         status.setItems(UserStatus.getValues());
         status.setValue(UserStatus.getValues().get(0));
 
-        englishLocale = new Locale("en", "EN");
+        englishLocale = Locale.of("en", "EN");
 
         datePicker = new DatePicker("Date of birth:");
         datePicker.setLocale(englishLocale);
